@@ -5,29 +5,49 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 class GroupCard extends StatelessWidget {
+  final String name;
+  final String description;
+  final String people;
+  final double value;
+  final int items;
+  IconData? icon;
+  Color? backgroundColor;
+  Color? iconColor;
+
+  GroupCard(
+    this.name,
+    this.description,
+    this.people,
+    this.value,
+    this.items, {
+    this.icon,
+    this.backgroundColor,
+    this.iconColor,
+  });
+
   @override
   Widget build(BuildContext context) {
     return Card(
+      shadowColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      color: Color.fromRGBO(37, 37, 37, 1),
       child: Padding(
-        padding: const EdgeInsets.all(15.0),
+        padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
         child: IntrinsicHeight(
           child: Row(
+            spacing: 5,
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               IconBox(
-                HugeIcons.strokeRoundedUserMultiple02,
-                Colors.white,
-                Color.fromRGBO(21, 93, 252, 1),
+                icon ?? HugeIcons.strokeRoundedUserMultiple02,
+                iconColor ??Colors.white,
+                backgroundColor ?? Color.fromRGBO(21, 93, 252, 1),
               ),
               SizedBox(width: 10),
-              GroupInfos(
-                "Hamburgueria",
-                "Comanda da hamburgueria",
-                "Luiz, Henrique, Gabriel",
-              ),
+              GroupInfos(name, description, people),
               SizedBox(width: 10),
-              GroupPriceItem(159.00, 5),
+              GroupPriceItem(value, items),
             ],
           ),
         ),
@@ -49,7 +69,7 @@ class IconBox extends StatelessWidget {
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(15),
       ),
       child: Icon(icon, color: iconColor, size: 32),
     );
@@ -102,6 +122,9 @@ class GroupPriceItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final formatter = NumberFormat.simpleCurrency(locale: 'pt_BR');
     return Column(
+      spacing: 2,
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
           formatter.format(value),
