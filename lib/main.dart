@@ -14,7 +14,19 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: AppTheme.darkTheme,
-      home: Scaffold(appBar: AppBar(title: Text("DivideAi")), body: GroupCard(),),
+      home: Scaffold(
+        appBar: AppBar(title: Text("DivideAi")),
+        body: GroupCard(
+          "Hamburgueria",
+          "Brooks",
+          "Gabriel, Luiz, Henrique",
+          50.00,
+          5,
+          onTap: (){
+            debugPrint("Olá, voce clicou aqui");
+          },
+        ),
+      ),
     );
   }
 }

@@ -10,9 +10,10 @@ class GroupCard extends StatelessWidget {
   final String people;
   final double value;
   final int items;
-  IconData? icon;
-  Color? backgroundColor;
-  Color? iconColor;
+  final IconData? icon;
+  final Color? backgroundColor;
+  final Color? iconColor;
+  final VoidCallback? onTap;
 
   GroupCard(
     this.name,
@@ -23,32 +24,38 @@ class GroupCard extends StatelessWidget {
     this.icon,
     this.backgroundColor,
     this.iconColor,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shadowColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      color: Color.fromRGBO(37, 37, 37, 1),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
-        child: IntrinsicHeight(
-          child: Row(
-            spacing: 5,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              IconBox(
-                icon ?? HugeIcons.strokeRoundedUserMultiple02,
-                iconColor ??Colors.white,
-                backgroundColor ?? Color.fromRGBO(21, 93, 252, 1),
-              ),
-              SizedBox(width: 10),
-              GroupInfos(name, description, people),
-              SizedBox(width: 10),
-              GroupPriceItem(value, items),
-            ],
+    return InkWell(
+      borderRadius: BorderRadius.circular(15),
+      splashColor: backgroundColor ?? Color.fromRGBO(21, 93, 252, 1),
+      onTap: onTap,
+      child: Card(
+        shadowColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        color: Color.fromRGBO(37, 37, 37, 1),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+          child: IntrinsicHeight(
+            child: Row(
+              spacing: 5,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                IconBox(
+                  icon ?? HugeIcons.strokeRoundedUserMultiple02,
+                  iconColor ?? Colors.white,
+                  backgroundColor ?? Color.fromRGBO(21, 93, 252, 1),
+                ),
+                SizedBox(width: 10),
+                GroupInfos(name, description, people),
+                SizedBox(width: 10),
+                GroupPriceItem(value, items),
+              ],
+            ),
           ),
         ),
       ),
