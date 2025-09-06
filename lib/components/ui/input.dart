@@ -28,22 +28,45 @@ class Input extends StatefulWidget {
 }
 
 class _InputState extends State<Input> {
+  late double height;
+  late double fontSize;
+  late double iconSize;
+  final FocusNode _focusNode = FocusNode();
+  bool _isFocused = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.addListener(() {
+      setState(() {
+        _isFocused = _focusNode.hasFocus;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    double height;
-    double fontSize;
     switch (widget.size) {
       case InputSize.small:
         height = 40;
         fontSize = 14;
+        iconSize = 16;
         break;
       case InputSize.medium:
         height = 50;
         fontSize = 16;
+        iconSize = 20;
         break;
       case InputSize.large:
         height = 60;
         fontSize = 18;
+        iconSize = 24;
         break;
     }
 
@@ -58,28 +81,47 @@ class _InputState extends State<Input> {
             color: Colors.white,
           ),
         ),
-        SizedBox(height: 8),
-        Container(
+        const SizedBox(height: 8),
+        AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
           height: height,
           decoration: BoxDecoration(
-            color: Color.fromRGBO(37, 37, 37, 1),
+            color: const Color.fromRGBO(37, 37, 37, 1),
             borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: _isFocused
+                  ? const Color.fromRGBO(21, 93, 252, 1) // azul no foco
+                  : Colors.transparent,
+              width: 2,
+            ),
           ),
-          child: TextField(
-            controller: widget.controller,
-            keyboardType: widget.keyboardType,
-            obscureText: widget.obscureText,
-            style: TextStyle(color: Colors.white, fontSize: fontSize),
-            decoration: InputDecoration(
-              hintText: widget.hint,
-              hintStyle: TextStyle(color: Colors.grey),
-              border: InputBorder.none,
-              prefixIcon: widget.icon != null
-                  ? Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: FaIcon(widget.icon, color: Colors.white),
-                    )
-                  : null,
+          child: Center( // garante centralização vertical do texto + cursor
+            child: TextField(
+              focusNode: _focusNode,
+              controller: widget.controller,
+              keyboardType: widget.keyboardType,
+              obscureText: widget.obscureText,
+              cursorColor: Colors.white,
+              style: TextStyle(color: Colors.white, fontSize: fontSize),
+              textAlignVertical: TextAlignVertical.center, // cursor centralizado
+              decoration: InputDecoration(
+                isCollapsed: true,
+                contentPadding: EdgeInsets.symmetric(horizontal: 12),
+                hintText: widget.hint,
+                hintStyle: const TextStyle(color: Colors.grey),
+                border: InputBorder.none,
+                prefixIcon: widget.icon != null
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: FaIcon(widget.icon,
+                            color: Colors.white, size: iconSize),
+                      )
+                    : null,
+                prefixIconConstraints: BoxConstraints(
+                  minWidth: iconSize + 20,
+                  minHeight: iconSize,
+                ),
+              ),
             ),
           ),
         ),
