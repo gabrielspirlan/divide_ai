@@ -86,11 +86,11 @@ class _InputState extends State<Input> {
           duration: const Duration(milliseconds: 200),
           height: height,
           decoration: BoxDecoration(
-            color: const Color(0xFF2a2a2a),
+            color: Theme.of(context).colorScheme.onBackground,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: _isFocused
-                  ? const Color(0xFF6a6a6a)
+                  ? Theme.of(context).focusColor
                   : Color(0xFF3a3a3a),
               width: 2,
             ),

@@ -1,3 +1,4 @@
+import 'package:divide_ai/components/group/group_card.dart';
 import 'package:divide_ai/components/ui/input.dart'; // importe o seu input
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:flutter/material.dart';
@@ -63,6 +64,19 @@ class InputTestPage extends StatelessWidget {
               size: InputSize.small,
             ),
             const SizedBox(height: 24),
+            GroupCard(
+              Group(
+                "Hamburgueria",
+                "Brooks Sabadão",
+                "Gabriel, Henrique, Luiz",
+                300.00,
+                5,
+                Theme.of(context).primaryColor,
+              ),
+              onTap: () {
+                debugPrint("Clicou no grupo");
+              },
+            ),
             ElevatedButton(
               onPressed: () {
                 debugPrint("Nome: ${nameController.text}");

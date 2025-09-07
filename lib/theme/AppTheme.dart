@@ -20,11 +20,15 @@ class AppTheme {
   );
 
   static ThemeData darkTheme = ThemeData(
+    primaryColor: Color(0xFF155DFC),
+    focusColor: Color(0xFF6a6a6a),
     textTheme: GoogleFonts.robotoTextTheme(Typography.whiteCupertino),
     scaffoldBackgroundColor: Color(0xFF1a1a1a),
-    appBarTheme: AppBarTheme(backgroundColor: Color(0x1447e6)),
+    appBarTheme: AppBarTheme(backgroundColor: Color(0xFF252525)),
     colorScheme: ColorScheme.fromSeed(
-      primary: Color(0x1447e6),
+      primary: Color(0xFF155DFC),
+      background: Color(0xFF252525),
+      onBackground: Color(0xFF2a2a2a),
       seedColor: Color(0x1447e6),
       brightness: Brightness.dark,
     ),

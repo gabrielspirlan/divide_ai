@@ -3,34 +3,36 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-class GroupCard extends StatelessWidget {
+// Classe para salvar informações do grupo
+class Group {
   final String name;
   final String description;
   final String people;
   final double value;
   final int items;
-  final IconData? icon;
-  final Color? backgroundColor;
-  final Color? iconColor;
-  final VoidCallback? onTap;
+  final Color backgroundColor;
 
-  GroupCard(
+  Group(
     this.name,
     this.description,
     this.people,
     this.value,
-    this.items, {
-    this.icon,
+    this.items,
     this.backgroundColor,
-    this.iconColor,
-    this.onTap,
-  });
+  );
+}
+
+class GroupCard extends StatelessWidget {
+  final Group group;
+  final VoidCallback? onTap;
+
+  GroupCard(this.group, {this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(15),
-      splashColor: backgroundColor ?? Color.fromRGBO(21, 93, 252, 1),
+      splashColor: group.backgroundColor,
       onTap: onTap,
       child: Card(
         shadowColor: Colors.white,
@@ -45,14 +47,14 @@ class GroupCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 IconBox(
-                  icon ?? HugeIcons.strokeRoundedUserMultiple02,
-                  iconColor ?? Colors.white,
-                  backgroundColor ?? Color.fromRGBO(21, 93, 252, 1),
+                  HugeIcons.strokeRoundedUserMultiple02,
+                  Colors.white,
+                  group.backgroundColor,
                 ),
                 SizedBox(width: 10),
-                GroupInfos(name, description, people),
+                GroupInfos(group.name, group.description, group.people),
                 SizedBox(width: 10),
-                GroupPriceItem(value, items),
+                GroupPriceItem(group.value, group.items),
               ],
             ),
           ),
