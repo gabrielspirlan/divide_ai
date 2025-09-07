@@ -1,6 +1,7 @@
 import 'package:divide_ai/components/ui/input.dart'; // importe o seu input
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 void main() {
   runApp(const MyApp());
@@ -41,13 +42,13 @@ class InputTestPage extends StatelessWidget {
               hint: "Digite seu nome",
               icon: Icons.person,
               controller: nameController,
-              size: InputSize.medium,
+              size: InputSize.large,
             ),
             const SizedBox(height: 16),
             Input(
               label: "Email",
               hint: "Digite seu email",
-              icon: Icons.email,
+              icon: HugeIcons.strokeRoundedMail01,
               keyboardType: TextInputType.emailAddress,
               controller: emailController,
               size: InputSize.medium,
@@ -59,7 +60,7 @@ class InputTestPage extends StatelessWidget {
               icon: Icons.lock,
               obscureText: true,
               controller: passwordController,
-              size: InputSize.medium,
+              size: InputSize.small,
             ),
             const SizedBox(height: 24),
             ElevatedButton(

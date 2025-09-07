@@ -86,16 +86,16 @@ class _InputState extends State<Input> {
           duration: const Duration(milliseconds: 200),
           height: height,
           decoration: BoxDecoration(
-            color: const Color.fromRGBO(37, 37, 37, 1),
+            color: const Color(0xFF2a2a2a),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: _isFocused
-                  ? const Color.fromRGBO(21, 93, 252, 1) // azul no foco
-                  : Colors.transparent,
+                  ? const Color(0xFF6a6a6a)
+                  : Color(0xFF3a3a3a),
               width: 2,
             ),
           ),
-          child: Center( // garante centralização vertical do texto + cursor
+          child: Center( 
             child: TextField(
               focusNode: _focusNode,
               controller: widget.controller,
