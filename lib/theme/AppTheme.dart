@@ -21,7 +21,7 @@ class AppTheme {
 
   static ThemeData darkTheme = ThemeData(
     textTheme: GoogleFonts.robotoTextTheme(Typography.whiteCupertino),
-    scaffoldBackgroundColor: Color(0x0a0a0a),
+    scaffoldBackgroundColor: Color(0xFF1a1a1a),
     appBarTheme: AppBarTheme(backgroundColor: Color(0x1447e6)),
     colorScheme: ColorScheme.fromSeed(
       primary: Color(0x1447e6),
