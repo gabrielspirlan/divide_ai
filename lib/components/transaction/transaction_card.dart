@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 enum TransactionType { individual, compartilhado }
 
@@ -29,12 +30,12 @@ class TransactionCard extends StatelessWidget {
 
     // Define ícone e cor padrão baseado no tipo
     final IconData icon = type == TransactionType.individual
-        ? FontAwesomeIcons.user
-        : FontAwesomeIcons.userGroup;
+        ? HugeIcons.strokeRoundedUser
+        : HugeIcons.strokeRoundedUserAccount;
 
     final Color badgeColor = type == TransactionType.individual
         ? Colors.green
-        : Colors.blue;
+        : Theme.of(context).colorScheme.primary;
 
     final String typeLabel = type == TransactionType.individual
         ? "Individual"

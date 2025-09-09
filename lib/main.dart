@@ -1,4 +1,4 @@
-import 'package:divide_ai/components/ui/transaction_card.dart';
+import 'package:divide_ai/components/transaction/transaction_card.dart';
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
