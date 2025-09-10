@@ -20,15 +20,20 @@ class AppTheme {
   );
 
   static ThemeData darkTheme = ThemeData(
-    primaryColor: Color(0xFF155DFC),
     focusColor: Color(0xFF6a6a6a),
     textTheme: GoogleFonts.robotoTextTheme(Typography.whiteCupertino),
     scaffoldBackgroundColor: Color(0xFF1a1a1a),
     appBarTheme: AppBarTheme(backgroundColor: Color(0xFF252525)),
     colorScheme: ColorScheme.fromSeed(
-      primary: Color(0xFF155DFC),
-      background: Color(0xFF252525),
-      onBackground: Color(0xFF2a2a2a),
+      primary: const Color(0xFF1447e6), // Cor primária (Logo, botões)
+      onPrimary: const Color(0xFF273752),
+      primaryContainer: const Color(0xFF1b2431), // Cor de Hover ou ativação da primária
+      inversePrimary: Color(0xFF93c5fd),  // Cor de texto na primária
+      onPrimaryFixed: Color(0xFF51a2ff), // Cor de texto na primária
+      secondary: const Color(0xFF10b981), // Cor secundária
+      secondaryContainer: const Color(0xFF172b1f),
+      onSecondary: Color(0xFF1e462e),
+      onSecondaryFixed: Color(0xFF07da70),
       seedColor: Color(0x1447e6),
       brightness: Brightness.dark,
     ),

@@ -48,8 +48,7 @@ class TransactionTestPage extends StatelessWidget {
               value: 35.0,
               date: DateTime.now().subtract(const Duration(days: 1)),
               participants: ["Luiz"],
-              type: TransactionType.individual,
-              color: Colors.orange,
+              type: TransactionType.individual
             ),
           ],
         ),
