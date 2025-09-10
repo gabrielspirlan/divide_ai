@@ -1,5 +1,6 @@
 import 'package:divide_ai/components/group/group_card.dart';
-import 'package:divide_ai/components/ui/input.dart'; // importe o seu input
+import 'package:divide_ai/components/ui/input.dart';
+import 'package:divide_ai/components/ui/button.dart'; 
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -64,26 +65,19 @@ class InputTestPage extends StatelessWidget {
               size: InputSize.small,
             ),
             const SizedBox(height: 24),
-            GroupCard(
-              Group(
-                "Hamburgueria",
-                "Brooks Sabadão",
-                "Gabriel, Henrique, Luiz",
-                300.00,
-                5,
-                Theme.of(context).primaryColor,
+            
+            const SizedBox(height: 24),
+            Center(
+              child: Button(
+                text: "Começar",
+                icon: Icons.send,
+                size: ButtonSize.large,
+                onPressed: () {
+                  debugPrint("Nome: ${nameController.text}");
+                  debugPrint("Email: ${emailController.text}");
+                  debugPrint("Senha: ${passwordController.text}");
+                },
               ),
-              onTap: () {
-                debugPrint("Clicou no grupo");
-              },
-            ),
-            ElevatedButton(
-              onPressed: () {
-                debugPrint("Nome: ${nameController.text}");
-                debugPrint("Email: ${emailController.text}");
-                debugPrint("Senha: ${passwordController.text}");
-              },
-              child: const Text("Enviar"),
             ),
           ],
         ),
