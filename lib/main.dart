@@ -1,5 +1,7 @@
 import 'package:divide_ai/components/group/group_card.dart';
-import 'package:divide_ai/components/ui/input.dart'; // importe o seu input
+import 'package:divide_ai/components/ui/input.dart'; 
+import 'package:divide_ai/components/ui/button.dart'; 
+import 'package:divide_ai/components/ui/info_card.dart'; // importa o InfoCard
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -32,12 +34,13 @@ class InputTestPage extends StatelessWidget {
     final TextEditingController passwordController = TextEditingController();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Teste de Input")),
-      body: Padding(
+      appBar: AppBar(title: const Text("Teste de Componentes")),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Inputs
             Input(
               label: "Nome",
               hint: "Digite seu nome",
@@ -64,6 +67,8 @@ class InputTestPage extends StatelessWidget {
               size: InputSize.small,
             ),
             const SizedBox(height: 24),
+
+            // GroupCard
             GroupCard(
               Group(
                 "Hamburgueria",
@@ -77,14 +82,35 @@ class InputTestPage extends StatelessWidget {
                 debugPrint("Clicou no grupo");
               },
             ),
-            ElevatedButton(
-              onPressed: () {
-                debugPrint("Nome: ${nameController.text}");
-                debugPrint("Email: ${emailController.text}");
-                debugPrint("Senha: ${passwordController.text}");
-              },
-              child: const Text("Enviar"),
+            const SizedBox(height: 24),
+
+            // InfoCards lado a lado
+            Row(
+              children: [
+                Expanded(
+                  child: InfoCard(
+                    icon: Icons.group,
+                    title: "Grupos",
+                    value: "4",
+                    color: Colors.blue,
+                    size: InfoCardSize.medium,
+                    alignment: InfoCardAlignment.vertical,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: InfoCard(
+                    icon: Icons.attach_money,
+                    title: "Total",
+                    value: "R\$ 1177.00",
+                    color: Colors.green,
+                    size: InfoCardSize.medium,
+                    alignment: InfoCardAlignment.vertical,
+                  ),
+                ),
+              ],
             ),
+            const SizedBox(height: 24),
           ],
         ),
       ),
