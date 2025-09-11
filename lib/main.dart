@@ -1,10 +1,13 @@
-import 'package:divide_ai/components/group/group_card.dart';
-import 'package:divide_ai/components/ui/input.dart'; // importe o seu input
+import 'package:divide_ai/components/transaction/transaction_card.dart';
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await initializeDateFormatting('pt_BR', null); // 🔹 inicializa locale pt_BR
+  Intl.defaultLocale = 'pt_BR'; // 🔹 define como padrão global
   runApp(const MyApp());
 }
 
@@ -16,74 +19,40 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: AppTheme.darkTheme,
-      home: const InputTestPage(),
+      home: const TransactionTestPage(),
     );
   }
 }
 
-class InputTestPage extends StatelessWidget {
-  const InputTestPage({super.key});
+class TransactionTestPage extends StatelessWidget {
+  const TransactionTestPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // controllers para teste
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
-
     return Scaffold(
-      appBar: AppBar(title: const Text("Teste de Input")),
+      appBar: AppBar(title: const Text("DivideAi - Teste TransactionCard")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: ListView(
           children: [
-            Input(
-              label: "Nome",
-              hint: "Digite seu nome",
-              icon: Icons.person,
-              controller: nameController,
-              size: InputSize.large,
-            ),
-            const SizedBox(height: 16),
-            Input(
-              label: "Email",
-              hint: "Digite seu email",
-              icon: HugeIcons.strokeRoundedMail01,
-              keyboardType: TextInputType.emailAddress,
-              controller: emailController,
-              size: InputSize.medium,
-            ),
-            const SizedBox(height: 16),
-            Input(
-              label: "Senha",
-              hint: "Digite sua senha",
-              icon: Icons.lock,
-              obscureText: true,
-              controller: passwordController,
-              size: InputSize.small,
-            ),
-            const SizedBox(height: 24),
-            GroupCard(
-              Group(
-                "Hamburgueria",
-                "Brooks Sabadão",
-                "Gabriel, Henrique, Luiz",
-                300.00,
-                5,
-                Theme.of(context).primaryColor,
+            TransactionCard(
+              Transaction(
+                title: "Pizza",
+                value: 120.0,
+                date: DateTime.now(),
+                participants: ["Luiz", "Gabriel", "Henrique"],
+                type: TransactionType.compartilhado,
               ),
-              onTap: () {
-                debugPrint("Clicou no grupo");
-              },
             ),
-            ElevatedButton(
-              onPressed: () {
-                debugPrint("Nome: ${nameController.text}");
-                debugPrint("Email: ${emailController.text}");
-                debugPrint("Senha: ${passwordController.text}");
-              },
-              child: const Text("Enviar"),
+            const SizedBox(height: 12),
+            TransactionCard(
+              Transaction(
+                title: "Uber",
+                value: 35.0,
+                date: DateTime.now().subtract(const Duration(days: 1)),
+                participants: ["Luiz"],
+                type: TransactionType.individual,
+              ),
             ),
           ],
         ),
