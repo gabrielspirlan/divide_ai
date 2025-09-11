@@ -23,9 +23,6 @@ class TransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formatter = NumberFormat.simpleCurrency(locale: 'pt_BR');
-    final dateFormatted = DateFormat("d 'de' MMM", "pt_BR").format(date);
-
     final IconData icon = type == TransactionType.individual
         ? HugeIcons.strokeRoundedUserCheck02
         : HugeIcons.strokeRoundedUserMultiple03;
@@ -46,21 +43,15 @@ class TransactionCard extends StatelessWidget {
         ? "Individual"
         : "Compartilhado";
 
-    final double valuePerPerson =
-        type == TransactionType.compartilhado && participants.isNotEmpty
-        ? value / participants.length
-        : value;
-
     return Card(
       color: const Color.fromRGBO(37, 37, 37, 1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Ícone à esquerda
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
@@ -69,53 +60,66 @@ class TransactionCard extends StatelessWidget {
               ),
               child: Icon(icon, color: textColor, size: 26),
             ),
-            const SizedBox(width: 12),
-
-            // Infos principais
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TitleAndBadge(title, typeLabel, badgeColor),
-                  const SizedBox(height: 4),
-
-                  // Participantes
-                  Text(
-                    type == TransactionType.individual
-                        ? "Gasto de ${participants.first}"
-                        : participants.join(', '),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: Color.fromRGBO(200, 200, 200, 1),
-                    ),
-                  ),
-
-                  const SizedBox(height: 6),
-
-                  // Data
-                  Row(
-                    children: [
-                      const Icon(
-                        HugeIcons.strokeRoundedCalendar04,
-                        size: 13,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        dateFormatted,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
+                  TransactionTitleAndBadge(title, typeLabel, badgeColor),
+                  TransactionParticipants(type, participants),
+                  TransactionDate(date),
                 ],
               ),
             ),
+            Value(value, type, participants),
           ],
         ),
       ),
+    );
+  }
+}
+
+class TransactionParticipants extends StatelessWidget {
+  final TransactionType _type;
+  final List<String> _participants;
+
+  TransactionParticipants(this._type, this._participants);
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Text(
+      _type == TransactionType.individual
+          ? "Gasto de ${_participants.first}"
+          : _participants.join(', '),
+      style: const TextStyle(
+        fontSize: 14,
+        color: Color.fromRGBO(200, 200, 200, 1),
+      ),
+    );
+  }
+}
+
+class TransactionDate extends StatelessWidget {
+  final DateTime _date;
+
+  TransactionDate(this._date);
+
+  @override
+  Widget build(BuildContext context) {
+    final dateFormatted = DateFormat("d 'de' MMM", "pt_BR").format(_date);
+    return Row(
+      children: [
+        const Icon(
+          HugeIcons.strokeRoundedCalendar04,
+          size: 13,
+          color: Colors.grey,
+        ),
+        const SizedBox(width: 4),
+        Text(
+          dateFormatted,
+          style: const TextStyle(fontSize: 13, color: Colors.grey),
+        ),
+      ],
     );
   }
 }
@@ -124,11 +128,15 @@ class Value extends StatelessWidget {
   final double _value;
   final TransactionType _type;
   final List<String> _participants;
-  Value(this._value, this._type, this._participants);
 
+  Value(this._value, this._type, this._participants);
 
   @override
   Widget build(BuildContext context) {
+    final formatter = NumberFormat.simpleCurrency(locale: 'pt_BR');
+    final valuePerPerson = _type == TransactionType.compartilhado
+        ? _value / _participants.length
+        : _value;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
@@ -150,12 +158,12 @@ class Value extends StatelessWidget {
   }
 }
 
-class TitleAndBadge extends StatelessWidget {
+class TransactionTitleAndBadge extends StatelessWidget {
   final String _title;
   final String _typeLabel;
   final Color _badgeColor;
 
-  TitleAndBadge(this._title, this._typeLabel, this._badgeColor);
+  TransactionTitleAndBadge(this._title, this._typeLabel, this._badgeColor);
 
   @override
   Widget build(BuildContext context) {
