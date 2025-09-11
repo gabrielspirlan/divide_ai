@@ -36,19 +36,23 @@ class TransactionTestPage extends StatelessWidget {
         child: ListView(
           children: [
             TransactionCard(
-              title: "Pizza",
-              value: 120.0,
-              date: DateTime.now(),
-              participants: ["Luiz", "Gabriel", "Henrique"],
-              type: TransactionType.compartilhado,
+              Transaction(
+                title: "Pizza",
+                value: 120.0,
+                date: DateTime.now(),
+                participants: ["Luiz", "Gabriel", "Henrique"],
+                type: TransactionType.compartilhado,
+              ),
             ),
             const SizedBox(height: 12),
             TransactionCard(
-              title: "Uber",
-              value: 35.0,
-              date: DateTime.now().subtract(const Duration(days: 1)),
-              participants: ["Luiz"],
-              type: TransactionType.individual
+              Transaction(
+                title: "Uber",
+                value: 35.0,
+                date: DateTime.now().subtract(const Duration(days: 1)),
+                participants: ["Luiz"],
+                type: TransactionType.individual,
+              ),
             ),
           ],
         ),

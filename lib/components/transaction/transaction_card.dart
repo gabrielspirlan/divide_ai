@@ -5,75 +5,102 @@ import 'package:hugeicons/hugeicons.dart';
 
 enum TransactionType { individual, compartilhado }
 
-class TransactionCard extends StatelessWidget {
+class Transaction {
   final String title;
   final double value;
   final DateTime date;
   final List<String> participants;
   final TransactionType type;
 
-  const TransactionCard({
-    Key? key,
+  Transaction({
     required this.title,
     required this.value,
     required this.date,
     required this.participants,
     required this.type,
-  }) : super(key: key);
+  });
+}
+
+class TransactionCard extends StatelessWidget {
+  final Transaction transaction;
+
+  TransactionCard(this.transaction);
 
   @override
   Widget build(BuildContext context) {
-    final IconData icon = type == TransactionType.individual
+    final IconData icon = transaction.type == TransactionType.individual
         ? HugeIcons.strokeRoundedUserCheck02
         : HugeIcons.strokeRoundedUserMultiple03;
 
-    final Color badgeColor = type == TransactionType.individual
+    final Color badgeColor = transaction.type == TransactionType.individual
         ? Theme.of(context).colorScheme.onSecondaryFixed
         : Theme.of(context).colorScheme.onPrimaryFixed;
 
-    final Color backgroundColor = type == TransactionType.individual
+    final Color backgroundColor = transaction.type == TransactionType.individual
         ? Theme.of(context).colorScheme.onSecondary
         : Theme.of(context).colorScheme.onPrimary;
 
-    final Color textColor = type == TransactionType.individual
+    final Color textColor = transaction.type == TransactionType.individual
         ? Theme.of(context).colorScheme.onSecondaryFixed
         : Theme.of(context).colorScheme.onPrimaryFixed;
 
-    final String typeLabel = type == TransactionType.individual
-        ? "Individual"
-        : "Compartilhado";
-
     return Card(
-      color: const Color.fromRGBO(37, 37, 37, 1),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Theme.of(context).colorScheme.onBackground,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: backgroundColor,
-                borderRadius: BorderRadius.circular(50),
-              ),
-              child: Icon(icon, color: textColor, size: 26),
-            ),
+            TransactionIcon(backgroundColor, textColor, icon),
             Expanded(
               child: Column(
+                spacing: 3,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TransactionTitleAndBadge(title, typeLabel, badgeColor),
-                  TransactionParticipants(type, participants),
-                  TransactionDate(date),
+                  TransactionTitle(
+                    transaction.title
+                  ),
+
+                  TransactionParticipants(
+                    transaction.type,
+                    transaction.participants,
+                  ),
+                  TransactionDate(transaction.date),
                 ],
               ),
             ),
-            Value(value, type, participants),
+            TransactionValueAndBadge(
+              transaction.value,
+              transaction.type,
+              transaction.participants,
+              badgeColor,
+            ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class TransactionIcon extends StatelessWidget {
+  final Color _backgroundColor;
+  final Color _textColor;
+  final IconData _icon;
+
+  TransactionIcon(this._backgroundColor, this._textColor, this._icon);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      margin: EdgeInsets.fromLTRB(0, 0, 12, 0),
+      decoration: BoxDecoration(
+        color: _backgroundColor,
+        borderRadius: BorderRadius.circular(50),
+      ),
+      child: Icon(_icon, color: _textColor, size: 26),
     );
   }
 }
@@ -86,7 +113,6 @@ class TransactionParticipants extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Text(
       _type == TransactionType.individual
           ? "Gasto de ${_participants.first}"
@@ -124,21 +150,32 @@ class TransactionDate extends StatelessWidget {
   }
 }
 
-class Value extends StatelessWidget {
+class TransactionValueAndBadge extends StatelessWidget {
   final double _value;
   final TransactionType _type;
   final List<String> _participants;
+  final Color _badgeColor;
 
-  Value(this._value, this._type, this._participants);
+  TransactionValueAndBadge(
+    this._value,
+    this._type,
+    this._participants,
+    this._badgeColor,
+  );
 
   @override
   Widget build(BuildContext context) {
+    final String typeLabel = _type == TransactionType.individual
+        ? "Individual"
+        : "Compartilhado";
+
     final formatter = NumberFormat.simpleCurrency(locale: 'pt_BR');
     final valuePerPerson = _type == TransactionType.compartilhado
         ? _value / _participants.length
         : _value;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
+
       children: [
         Text(
           formatter.format(_value),
@@ -153,22 +190,38 @@ class Value extends StatelessWidget {
             "${formatter.format(valuePerPerson)} p/pessoa",
             style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
+        Container(
+          margin: EdgeInsets.only(top: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+          decoration: BoxDecoration(
+            color: _badgeColor.withAlpha(1),
+            border: Border.all(color: _badgeColor, width: 0.7),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Text(
+            typeLabel,
+            style: TextStyle(
+              fontSize: 11,
+              color: _badgeColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
       ],
     );
   }
 }
 
-class TransactionTitleAndBadge extends StatelessWidget {
+class TransactionTitle extends StatelessWidget {
   final String _title;
-  final String _typeLabel;
-  final Color _badgeColor;
 
-  TransactionTitleAndBadge(this._title, this._typeLabel, this._badgeColor);
+  TransactionTitle(this._title);
 
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
+      spacing: 30,
       children: [
         Text(
           _title,
@@ -177,24 +230,7 @@ class TransactionTitleAndBadge extends StatelessWidget {
             fontSize: 18,
             color: Colors.white,
           ),
-        ),
-        const SizedBox(width: 30),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-          decoration: BoxDecoration(
-            color: _badgeColor.withValues(alpha: 0.05),
-            border: Border.all(color: _badgeColor, width: 0.7),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Text(
-            _typeLabel,
-            style: TextStyle(
-              fontSize: 12,
-              color: _badgeColor,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
+        )
       ],
     );
   }
