@@ -1,3 +1,4 @@
+import 'package:divide_ai/components/group/group_card.dart';
 import 'package:divide_ai/components/transaction/transaction_card.dart';
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:flutter/material.dart';
@@ -35,6 +36,17 @@ class TransactionTestPage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
+            GroupCard(
+              Group(
+                "Pizza",
+                description: "Pizza na casa dos manos",
+                participants: ["Luiz, Gabriel"],
+                value: 120.0,
+                items: 3,
+                backgroundIconColor: Theme.of(context).colorScheme.primary),
+              ),
+
+
             TransactionCard(
               Transaction(
                 title: "Pizza",

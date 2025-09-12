@@ -7,19 +7,19 @@ import 'package:hugeicons/hugeicons.dart';
 class Group {
   final String name;
   final String description;
-  final String people;
+  final List<String> participants;
   final double value;
   final int items;
-  final Color backgroundColor;
+  final Color backgroundIconColor;
 
   Group(
-    this.name,
-    this.description,
-    this.people,
-    this.value,
-    this.items,
-    this.backgroundColor,
-  );
+    this.name, {
+    required this.description,
+    required this.participants,
+    required this.value,
+    required this.items,
+    required this.backgroundIconColor,
+  });
 }
 
 class GroupCard extends StatelessWidget {
@@ -32,28 +32,36 @@ class GroupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       borderRadius: BorderRadius.circular(15),
-      splashColor: group.backgroundColor,
+      splashColor: group.backgroundIconColor,
       onTap: onTap,
       child: Card(
-        shadowColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        color: Color.fromRGBO(37, 37, 37, 1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: Theme.of(context).colorScheme.onBackground,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
           child: IntrinsicHeight(
             child: Row(
               spacing: 5,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                IconBox(
-                  HugeIcons.strokeRoundedUserMultiple02,
-                  Colors.white,
-                  group.backgroundColor,
+                Expanded(
+                  child: Row(
+                    spacing: 10,
+                    children: [
+                      IconBox(
+                        HugeIcons.strokeRoundedUserMultiple02,
+                        Colors.white,
+                        group.backgroundIconColor,
+                      ),
+                      GroupInfos(
+                        group.name,
+                        group.description,
+                        group.participants.join(', '),
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(width: 10),
-                GroupInfos(group.name, group.description, group.people),
-                SizedBox(width: 10),
                 GroupPriceItem(group.value, group.items),
               ],
             ),
@@ -77,9 +85,9 @@ class IconBox extends StatelessWidget {
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(10),
       ),
-      child: Icon(icon, color: iconColor, size: 32),
+      child: Icon(icon, color: iconColor, size: 28),
     );
   }
 }
@@ -100,19 +108,23 @@ class GroupInfos extends StatelessWidget {
         Text(
           name,
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18.0),
+          overflow: TextOverflow.clip,
         ),
         Text(
           description,
           style: TextStyle(
             fontSize: 14.0,
-            color: Color.fromRGBO(160, 160, 160, 1),
+            color: Colors.grey,
           ),
+          overflow: TextOverflow.clip,
         ),
+        SizedBox(height: 2),
         Text(
           people,
           style: TextStyle(
-            fontSize: 14.0,
-            color: Color.fromRGBO(160, 160, 160, 1),
+            fontSize: 12.0,
+            color: Colors.grey,
+            overflow: TextOverflow.clip,
           ),
         ),
       ],
@@ -130,19 +142,18 @@ class GroupPriceItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final formatter = NumberFormat.simpleCurrency(locale: 'pt_BR');
     return Column(
-      spacing: 2,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
           formatter.format(value),
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
         ),
         Text(
           "$items itens",
           style: TextStyle(
-            color: Color.fromRGBO(160, 160, 160, 1),
-            fontSize: 14,
+            color: Colors.grey,
+            fontSize: 12,
           ),
         ),
       ],
