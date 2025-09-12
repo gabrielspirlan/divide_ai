@@ -1,5 +1,7 @@
 import 'package:divide_ai/components/group/group_card.dart';
+import 'package:divide_ai/components/transaction/spent_card.dart';
 import 'package:divide_ai/components/transaction/transaction_card.dart';
+import 'package:divide_ai/enums/transaction_type.dart';
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -34,38 +36,10 @@ class TransactionTestPage extends StatelessWidget {
       appBar: AppBar(title: const Text("DivideAi - Teste TransactionCard")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ListView(
+        child: Row(
           children: [
-            GroupCard(
-              Group(
-                "Pizza",
-                description: "Pizza na casa dos manos",
-                participants: ["Luiz, Gabriel"],
-                value: 120.0,
-                items: 3,
-                backgroundIconColor: Theme.of(context).colorScheme.primary),
-              ),
-
-
-            TransactionCard(
-              Transaction(
-                title: "Pizza",
-                value: 120.0,
-                date: DateTime.now(),
-                participants: ["Luiz", "Gabriel", "Henrique"],
-                type: TransactionType.compartilhado,
-              ),
-            ),
-            const SizedBox(height: 12),
-            TransactionCard(
-              Transaction(
-                title: "Uber",
-                value: 35.0,
-                date: DateTime.now().subtract(const Duration(days: 1)),
-                participants: ["Luiz"],
-                type: TransactionType.individual,
-              ),
-            ),
+            SpentCard(Spent(TransactionType.individual, 20.00)),
+            SpentCard(Spent(TransactionType.compartilhado, 20.00)),
           ],
         ),
       ),
