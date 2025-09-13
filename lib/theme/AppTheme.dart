@@ -36,6 +36,7 @@ class AppTheme {
       onSecondaryFixed: Color(0xFF07da70),
       seedColor: Color(0x1447e6),
       onBackground: Color(0xFF252525),
+      surfaceContainer: Color(0xFF2a2a2a),
       brightness: Brightness.dark,
     ),
   );

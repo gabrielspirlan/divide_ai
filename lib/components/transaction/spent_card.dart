@@ -25,35 +25,40 @@ class SpentCard extends StatelessWidget {
         ? HugeIcons.strokeRoundedUserCheck02
         : HugeIcons.strokeRoundedUserMultiple03;
     final color = spent.transactionType == TransactionType.individual
-        ? Theme.of(context).colorScheme.secondary
+        ? Theme.of(context).colorScheme.onSecondaryFixed
         : Theme.of(context).colorScheme.onPrimaryFixed;
 
     final formatter = NumberFormat.simpleCurrency(locale: 'pt_BR');
 
     return Card(
-      color: Theme.of(context).colorScheme.onBackground,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: Theme.of(context).colorScheme.surfaceContainer,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: IntrinsicHeight(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                spacing: 5,
-                mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
+          children: [
+            IntrinsicHeight(
+              child: Column(
+                spacing: 4,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(icon, color: color, size: 12),
-                  Text(title, style: TextStyle(color: color, fontSize: 12)),
+                  Row(
+                    spacing: 5,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(icon, color: color, size: 14),
+                      Text(title, style: TextStyle(color: color, fontSize: 14)),
+                    ],
+                  ),
+                  Text(
+                    formatter.format(spent.value),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
                 ],
               ),
-              Text(
-                formatter.format(spent.value),
-                style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

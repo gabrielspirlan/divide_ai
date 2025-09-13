@@ -1,4 +1,5 @@
 import 'package:divide_ai/components/group/group_card.dart';
+import 'package:divide_ai/components/transaction/bill_card.dart';
 import 'package:divide_ai/components/transaction/spent_card.dart';
 import 'package:divide_ai/components/transaction/transaction_card.dart';
 import 'package:divide_ai/enums/transaction_type.dart';
@@ -36,10 +37,15 @@ class TransactionTestPage extends StatelessWidget {
       appBar: AppBar(title: const Text("DivideAi - Teste TransactionCard")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Row(
+        child: Column(
           children: [
-            SpentCard(Spent(TransactionType.individual, 20.00)),
-            SpentCard(Spent(TransactionType.compartilhado, 20.00)),
+            Row(
+              children: [
+                SpentCard(Spent(TransactionType.individual, 20.00)),
+                SpentCard(Spent(TransactionType.compartilhado, 20.00)),
+              ],
+            ),
+            BillCard(),
           ],
         ),
       ),
