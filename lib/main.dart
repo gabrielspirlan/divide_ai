@@ -2,6 +2,7 @@ import 'package:divide_ai/components/transaction/bill_card.dart';
 import 'package:divide_ai/components/transaction/spent_card.dart';
 import 'package:divide_ai/components/ui/custom_app_bar.dart';
 import 'package:divide_ai/components/users/user_card.dart';
+import 'package:divide_ai/copy.dart';
 import 'package:divide_ai/enums/transaction_type.dart';
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:flutter/material.dart';
@@ -39,18 +40,11 @@ class TransactionTestPage extends StatelessWidget {
         "Olá Luiz",
         description: "Gerencie seus grupos de despesas",
         icon: Icon(Icons.abc_sharp),
-        tapIcon: () => {print("Clicou aqui!")},
+        tapIcon: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Copy()),
+        ),
       ),
-      // appBar: AppBar(
-      //   title: const Text("DivideAi"),
-
-      //   actions: [
-      //     IconButton(
-      //       icon: Icon(HugeIcons.strokeRoundedSettings01),
-      //       onPressed: () => print("Editar"),
-      //     ),
-      //   ],
-      // ),
       body: Column(
         children: [
           UserCard(
