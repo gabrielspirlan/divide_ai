@@ -26,7 +26,7 @@ class GroupCard extends StatelessWidget {
   final Group group;
   final VoidCallback? onTap;
 
-  GroupCard(this.group, {this.onTap});
+  const GroupCard(this.group, {super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +36,7 @@ class GroupCard extends StatelessWidget {
       onTap: onTap,
       child: Card(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: Theme.of(context).colorScheme.onBackground,
+        color: Theme.of(context).colorScheme.onSurface,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
           child: IntrinsicHeight(
@@ -77,7 +77,7 @@ class IconBox extends StatelessWidget {
   final Color backgroundColor;
   final Color iconColor;
 
-  IconBox(this.icon, this.iconColor, this.backgroundColor);
+  const IconBox(this.icon, this.iconColor, this.backgroundColor, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +97,7 @@ class GroupInfos extends StatelessWidget {
   final String description;
   final String people;
 
-  GroupInfos(this.name, this.description, this.people);
+  const GroupInfos(this.name, this.description, this.people, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +136,7 @@ class GroupPriceItem extends StatelessWidget {
   final double value;
   final int items;
 
-  GroupPriceItem(this.value, this.items);
+  const GroupPriceItem(this.value, this.items, {super.key});
 
   @override
   Widget build(BuildContext context) {

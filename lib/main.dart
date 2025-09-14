@@ -1,7 +1,5 @@
-import 'package:divide_ai/components/group/group_card.dart';
 import 'package:divide_ai/components/transaction/bill_card.dart';
 import 'package:divide_ai/components/transaction/spent_card.dart';
-import 'package:divide_ai/components/transaction/transaction_card.dart';
 import 'package:divide_ai/enums/transaction_type.dart';
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +43,9 @@ class TransactionTestPage extends StatelessWidget {
                 SpentCard(Spent(TransactionType.compartilhado, 20.00)),
               ],
             ),
-            BillCard(),
+            BillCard(
+              Bill("Luiz", valueCompartilhado: 30.00, valueIndividual: 20.00),
+            ),
           ],
         ),
       ),

@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:divide_ai/enums/transaction_type.dart';
 
-
 class Transaction {
   final String title;
   final double value;
@@ -23,7 +22,7 @@ class Transaction {
 class TransactionCard extends StatelessWidget {
   final Transaction transaction;
 
-  TransactionCard(this.transaction);
+  const TransactionCard(this.transaction, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +43,7 @@ class TransactionCard extends StatelessWidget {
         : Theme.of(context).colorScheme.onPrimaryFixed;
 
     return Card(
-      color: Theme.of(context).colorScheme.onBackground,
+      color: Theme.of(context).colorScheme.onSurface,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
@@ -58,9 +57,7 @@ class TransactionCard extends StatelessWidget {
                 spacing: 3,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TransactionTitle(
-                    transaction.title
-                  ),
+                  TransactionTitle(transaction.title),
 
                   TransactionParticipants(
                     transaction.type,
@@ -88,7 +85,12 @@ class TransactionIcon extends StatelessWidget {
   final Color _textColor;
   final IconData _icon;
 
-  TransactionIcon(this._backgroundColor, this._textColor, this._icon);
+  const TransactionIcon(
+    this._backgroundColor,
+    this._textColor,
+    this._icon, {
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +110,7 @@ class TransactionParticipants extends StatelessWidget {
   final TransactionType _type;
   final List<String> _participants;
 
-  TransactionParticipants(this._type, this._participants);
+  const TransactionParticipants(this._type, this._participants, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -127,7 +129,7 @@ class TransactionParticipants extends StatelessWidget {
 class TransactionDate extends StatelessWidget {
   final DateTime _date;
 
-  TransactionDate(this._date);
+  const TransactionDate(this._date, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -155,12 +157,13 @@ class TransactionValueAndBadge extends StatelessWidget {
   final List<String> _participants;
   final Color _badgeColor;
 
-  TransactionValueAndBadge(
+  const TransactionValueAndBadge(
     this._value,
     this._type,
     this._participants,
-    this._badgeColor,
-  );
+    this._badgeColor, {
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -214,7 +217,7 @@ class TransactionValueAndBadge extends StatelessWidget {
 class TransactionTitle extends StatelessWidget {
   final String _title;
 
-  TransactionTitle(this._title);
+  const TransactionTitle(this._title, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +232,7 @@ class TransactionTitle extends StatelessWidget {
             fontSize: 18,
             color: Colors.white,
           ),
-        )
+        ),
       ],
     );
   }
