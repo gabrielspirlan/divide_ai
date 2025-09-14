@@ -1,5 +1,6 @@
 import 'package:divide_ai/components/transaction/bill_card.dart';
 import 'package:divide_ai/components/transaction/spent_card.dart';
+import 'package:divide_ai/components/users/user_card.dart';
 import 'package:divide_ai/enums/transaction_type.dart';
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:flutter/material.dart';
@@ -33,22 +34,7 @@ class TransactionTestPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("DivideAi - Teste TransactionCard")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                SpentCard(Spent(TransactionType.individual, 20.00)),
-                SpentCard(Spent(TransactionType.compartilhado, 20.00)),
-              ],
-            ),
-            BillCard(
-              Bill("Luiz", valueCompartilhado: 30.00, valueIndividual: 20.00),
-            ),
-          ],
-        ),
-      ),
+      body: Column(children: [UserCard(User("Luiz Silva", email: "luiz@exemplo.com"), onTap: () => print("Editar perfil"),)]),
     );
   }
 }
