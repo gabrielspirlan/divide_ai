@@ -1,11 +1,14 @@
 import 'package:divide_ai/components/transaction/bill_card.dart';
 import 'package:divide_ai/components/transaction/spent_card.dart';
+import 'package:divide_ai/components/ui/custom_app_bar.dart';
 import 'package:divide_ai/components/users/user_card.dart';
+import 'package:divide_ai/copy.dart';
 import 'package:divide_ai/enums/transaction_type.dart';
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -33,8 +36,23 @@ class TransactionTestPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("DivideAi - Teste TransactionCard")),
-      body: Column(children: [UserCard(User("Luiz Silva", email: "luiz@exemplo.com"), onTap: () => print("Editar perfil"),)]),
+      appBar: CustomAppBar(
+        "Olá Luiz",
+        description: "Gerencie seus grupos de despesas",
+        icon: Icon(Icons.abc_sharp),
+        tapIcon: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => Copy()),
+        ),
+      ),
+      body: Column(
+        children: [
+          UserCard(
+            User("Luiz Silva", email: "luiz@exemplo.com"),
+            onTap: () => print("Editar perfil"),
+          ),
+        ],
+      ),
     );
   }
 }
