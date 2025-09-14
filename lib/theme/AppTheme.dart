@@ -23,13 +23,21 @@ class AppTheme {
     focusColor: Color(0xFF6a6a6a),
     textTheme: GoogleFonts.robotoTextTheme(Typography.whiteCupertino),
     scaffoldBackgroundColor: Color(0xFF1a1a1a),
-    appBarTheme: AppBarTheme(backgroundColor: Color(0xFF252525)),
-    
+    appBarTheme: AppBarTheme(
+      backgroundColor: Color(0xFF252525),
+      titleTextStyle: TextStyle(fontWeight: FontWeight.w900, fontSize: 26),
+    ),
+    iconButtonTheme: IconButtonThemeData(
+      style: ButtonStyle(iconColor: WidgetStatePropertyAll(Colors.white)),
+    ),
+
     colorScheme: ColorScheme.fromSeed(
       primary: const Color(0xFF1447e6), // Cor primária (Logo, botões)
       onPrimary: const Color(0xFF273752),
-      primaryContainer: const Color(0xFF1b2431), // Cor de Hover ou ativação da primária
-      inversePrimary: Color(0xFF93c5fd),  // Cor de texto na primária
+      primaryContainer: const Color(
+        0xFF1b2431,
+      ), // Cor de Hover ou ativação da primária
+      inversePrimary: Color(0xFF93c5fd), // Cor de texto na primária
       onPrimaryFixed: Color(0xFF51A2FF), // Cor de texto na primária
       secondary: const Color(0xFF10b981), // Cor secundária
       secondaryContainer: const Color(0xFF172b1f),
@@ -39,7 +47,6 @@ class AppTheme {
       onBackground: Color(0xFF252525),
       surfaceContainer: Color(0xFF313131),
       brightness: Brightness.dark,
-
     ),
   );
 }

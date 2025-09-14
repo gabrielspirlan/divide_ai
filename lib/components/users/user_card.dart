@@ -8,7 +8,7 @@ class User {
   User(this.name, {required this.email});
 }
 
-class UserCard extends StatelessWidget {
+class UserCard extends StatelessWidget  {
   final User _user;
   final VoidCallback onTap;
 
