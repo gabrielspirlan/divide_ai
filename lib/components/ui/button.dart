@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:divide_ai/theme/AppTheme.dart';
 
 enum ButtonSize { small, medium, large }
 
@@ -10,12 +9,12 @@ class Button extends StatelessWidget {
   final ButtonSize size;
 
   const Button({
-    Key? key,
+    super.key,
     required this.text,
     required this.onPressed,
     this.icon,
     this.size = ButtonSize.medium,
-  }) : super(key: key);
+  });
 
   double _getHeight() {
     switch (size) {
