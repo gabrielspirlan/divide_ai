@@ -35,7 +35,12 @@ class TransactionTestPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(),
+      appBar: CustomAppBar(
+        "Olá Luiz",
+        description: "Gerencie seus grupos de despesas",
+        icon: Icon(Icons.abc_sharp),
+        tapIcon: () => {print("Clicou aqui!")},
+      ),
       // appBar: AppBar(
       //   title: const Text("DivideAi"),
 
