@@ -1,7 +1,7 @@
 import 'package:divide_ai/components/group/group_card.dart';
 import 'package:divide_ai/components/ui/input.dart'; 
 import 'package:divide_ai/components/ui/button.dart'; 
-import 'package:divide_ai/components/ui/info_card.dart'; // importa o InfoCard
+import 'package:divide_ai/components/ui/info_card.dart'; 
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -84,7 +84,6 @@ class InputTestPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // InfoCards lado a lado
             Row(
               children: [
                 Expanded(
@@ -92,7 +91,7 @@ class InputTestPage extends StatelessWidget {
                     icon: Icons.group,
                     title: "Grupos",
                     value: "4",
-                    color: Colors.blue,
+                    colorOption: InfoCardColor.blue, 
                     size: InfoCardSize.medium,
                     alignment: InfoCardAlignment.vertical,
                   ),
@@ -103,7 +102,7 @@ class InputTestPage extends StatelessWidget {
                     icon: Icons.attach_money,
                     title: "Total",
                     value: "R\$ 1177.00",
-                    color: Colors.green,
+                    colorOption: InfoCardColor.green,
                     size: InfoCardSize.medium,
                     alignment: InfoCardAlignment.vertical,
                   ),

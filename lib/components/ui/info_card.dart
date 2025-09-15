@@ -2,24 +2,34 @@ import 'package:flutter/material.dart';
 
 enum InfoCardSize { small, medium, large }
 enum InfoCardAlignment { vertical, horizontal }
+enum InfoCardColor { blue, green }
 
 class InfoCard extends StatelessWidget {
   final IconData icon;
   final String title;
   final String value;
-  final Color color;
   final InfoCardSize size;
   final InfoCardAlignment alignment;
+  final InfoCardColor colorOption;
 
   const InfoCard({
     Key? key,
     required this.icon,
     required this.title,
     required this.value,
-    this.color = Colors.blue,
     this.size = InfoCardSize.medium,
     this.alignment = InfoCardAlignment.vertical,
+    this.colorOption = InfoCardColor.blue, 
   }) : super(key: key);
+
+  Color _getColor(BuildContext context) {
+    switch (colorOption) {
+      case InfoCardColor.green:
+        return const Color(0xFF00C950); 
+      case InfoCardColor.blue:
+        return const Color(0xFF2B7FFF); 
+    }
+  }
 
   double _getFontSizeTitle() {
     switch (size) {
@@ -57,24 +67,25 @@ class InfoCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isVertical = alignment == InfoCardAlignment.vertical;
+    final Color cardColor = _getColor(context);
 
     return Container(
       padding: _getPadding(),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: cardColor.withOpacity(0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color, width: 1.5),
+        border: Border.all(color: cardColor, width: 1.5),
       ),
       child: isVertical
           ? Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(icon, color: color, size: _getFontSizeValue() + 8),
+                Icon(icon, color: cardColor, size: _getFontSizeValue() + 8),
                 const SizedBox(height: 6),
                 Text(
                   title,
                   style: TextStyle(
-                    color: color,
+                    color: cardColor,
                     fontSize: _getFontSizeTitle(),
                     fontWeight: FontWeight.w500,
                   ),
@@ -83,7 +94,7 @@ class InfoCard extends StatelessWidget {
                 Text(
                   value,
                   style: TextStyle(
-                    color: color,
+                    color: cardColor,
                     fontSize: _getFontSizeValue(),
                     fontWeight: FontWeight.bold,
                   ),
@@ -93,7 +104,7 @@ class InfoCard extends StatelessWidget {
           : Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(icon, color: color, size: _getFontSizeValue() + 8),
+                Icon(icon, color: cardColor, size: _getFontSizeValue() + 8),
                 const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -101,7 +112,7 @@ class InfoCard extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                        color: color,
+                        color: cardColor,
                         fontSize: _getFontSizeTitle(),
                         fontWeight: FontWeight.w500,
                       ),
@@ -109,7 +120,7 @@ class InfoCard extends StatelessWidget {
                     Text(
                       value,
                       style: TextStyle(
-                        color: color,
+                        color: cardColor,
                         fontSize: _getFontSizeValue(),
                         fontWeight: FontWeight.bold,
                       ),
