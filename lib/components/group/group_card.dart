@@ -1,25 +1,8 @@
+import 'package:divide_ai/models/data/group.dart';
+import 'package:divide_ai/models/data/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
-
-// Classe para salvar informações do grupo
-class Group {
-  final String name;
-  final String description;
-  final List<String> participants;
-  final double value;
-  final int items;
-  final Color backgroundIconColor;
-
-  Group(
-    this.name, {
-    required this.description,
-    required this.participants,
-    required this.value,
-    required this.items,
-    required this.backgroundIconColor,
-  });
-}
 
 class GroupCard extends StatelessWidget {
   final Group group;
@@ -29,6 +12,11 @@ class GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final participants = group.participantIds.map((id) => "User $id").toList();
+    final groupTransactions = transactions
+        .where((t) => t.groupId == group.id)
+        .toList();
+
     return InkWell(
       borderRadius: BorderRadius.circular(15),
       splashColor: group.backgroundIconColor,
@@ -56,12 +44,12 @@ class GroupCard extends StatelessWidget {
                       GroupInfos(
                         group.name,
                         group.description,
-                        group.participants.join(', '),
+                        participants.join(', '),
                       ),
                     ],
                   ),
                 ),
-                GroupPriceItem(group.value, group.items),
+                GroupPriceItem(group.value, groupTransactions.length),
               ],
             ),
           ),
@@ -111,10 +99,7 @@ class GroupInfos extends StatelessWidget {
         ),
         Text(
           description,
-          style: TextStyle(
-            fontSize: 14.0,
-            color: Colors.grey,
-          ),
+          style: TextStyle(fontSize: 14.0, color: Colors.grey),
           overflow: TextOverflow.clip,
         ),
         SizedBox(height: 2),
@@ -150,10 +135,7 @@ class GroupPriceItem extends StatelessWidget {
         ),
         Text(
           "$items itens",
-          style: TextStyle(
-            color: Colors.grey,
-            fontSize: 12,
-          ),
+          style: TextStyle(color: Colors.grey, fontSize: 12),
         ),
       ],
     );

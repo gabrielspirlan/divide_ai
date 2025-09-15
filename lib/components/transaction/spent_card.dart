@@ -1,14 +1,8 @@
-import 'package:divide_ai/enums/transaction_type.dart';
+import 'package:divide_ai/models/enums/transaction_type.dart';
+import 'package:divide_ai/models/components/spent.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
-
-class Spent {
-  TransactionType transactionType;
-  double value;
-
-  Spent(this.transactionType, this.value);
-}
 
 class SpentCard extends StatelessWidget {
   final Spent spent;

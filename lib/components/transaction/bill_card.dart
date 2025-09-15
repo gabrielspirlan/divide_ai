@@ -1,19 +1,9 @@
 import 'package:divide_ai/components/transaction/spent_card.dart';
-import 'package:divide_ai/enums/transaction_type.dart';
+import 'package:divide_ai/models/components/bill.dart';
+import 'package:divide_ai/models/enums/transaction_type.dart';
+import 'package:divide_ai/models/components/spent.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
-class Bill {
-  final String participant;
-  final double valueIndividual;
-  final double valueCompartilhado;
-
-  Bill(
-    this.participant, {
-    required this.valueCompartilhado,
-    required this.valueIndividual,
-  });
-}
 
 class BillCard extends StatelessWidget {
   final Bill bill;
@@ -38,7 +28,7 @@ class BillCard extends StatelessWidget {
                 children: [
                   Expanded(
                     child: Text(
-                      bill.participant,
+                      bill.participantName,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w900,
