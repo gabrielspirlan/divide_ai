@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../models/enums/stats_type_enum.dart';
+import 'package:hugeicons/hugeicons.dart';
 
 class StatsCard extends StatelessWidget {
   final double value;
 
   final StatsTypeEnum type;
 
-  const StatsCard({
-    super.key,
-    required this.value,
-    required this.type,
-  });
+  const StatsCard({super.key, required this.value, required this.type});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +28,7 @@ class StatsCard extends StatelessWidget {
         cardHeight = 170;
         break;
       case StatsTypeEnum.click:
-        iconData = Icons.arrow_outward;
+        iconData = HugeIcons.strokeRoundedCursorPointer02;
         iconColor = const Color(0xFF4ADE80);
         labelText = 'Total cliques';
         valueText = value.toInt().toString();
@@ -51,20 +48,13 @@ class StatsCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFF2D2D2D),
         borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(
-          color: Colors.grey.withAlpha(51),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.grey.withAlpha(51), width: 1),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(
-            iconData,
-            color: iconColor,
-            size: 32.0,
-          ),
+          Icon(iconData, color: iconColor, size: 32.0),
 
           Text(
             valueText,
@@ -77,10 +67,7 @@ class StatsCard extends StatelessWidget {
 
           Text(
             labelText,
-            style: TextStyle(
-              color: Colors.grey[400],
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Colors.grey[400], fontSize: 14),
           ),
         ],
       ),
