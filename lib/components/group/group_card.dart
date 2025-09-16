@@ -1,4 +1,4 @@
-import 'package:divide_ai/theme/AppTheme.dart';
+import 'package:divide_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';

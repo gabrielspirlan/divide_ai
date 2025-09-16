@@ -2,7 +2,7 @@ import 'package:divide_ai/components/group/group_card.dart';
 import 'package:divide_ai/components/ui/input.dart'; 
 import 'package:divide_ai/components/ui/button.dart'; 
 import 'package:divide_ai/components/ui/info_card.dart'; 
-import 'package:divide_ai/theme/AppTheme.dart';
+import 'package:divide_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
