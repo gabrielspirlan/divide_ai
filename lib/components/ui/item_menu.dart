@@ -24,21 +24,24 @@ class ItemMenu extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
+          color: theme.colorScheme.surface, 
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: theme.focusColor, 
-            width: 1.5,
+            color: theme.focusColor,
+            width: 1.0,
           ),
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          spacing: 16, 
           children: [
             Icon(
               icon,
               size: 28,
               color: theme.colorScheme.onSurface,
             ),
-            const SizedBox(width: 16),
             Column(
+              spacing: -2, 
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
@@ -48,7 +51,6 @@ class ItemMenu extends StatelessWidget {
                     color: theme.colorScheme.onSurface,
                   ),
                 ),
-                const SizedBox(height: 4),
                 Text(
                   description,
                   style: theme.textTheme.bodyMedium?.copyWith(
