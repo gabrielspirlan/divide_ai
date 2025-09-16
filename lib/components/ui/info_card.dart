@@ -19,15 +19,16 @@ class InfoCard extends StatelessWidget {
     required this.value,
     this.size = InfoCardSize.medium,
     this.alignment = InfoCardAlignment.vertical,
-    this.colorOption = InfoCardColor.blue, 
+    this.colorOption = InfoCardColor.blue,
   }) : super(key: key);
 
   Color _getColor(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     switch (colorOption) {
       case InfoCardColor.green:
-        return const Color(0xFF00C950); 
+        return colorScheme.secondary; 
       case InfoCardColor.blue:
-        return const Color(0xFF2B7FFF); 
+        return colorScheme.primary; 
     }
   }
 
