@@ -11,7 +11,7 @@ class Copy extends StatelessWidget {
       appBar: CustomAppBar(
         "Olá Gabriel",
         description: "Gerencie seus grupos de despesas",
-        icon: Icon(Icons.abc_sharp),
+        icon: Icons.abc_sharp,
         tapIcon: () => {print("Clicou aqui!")},
       ),
       body: Column(

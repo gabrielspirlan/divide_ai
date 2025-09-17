@@ -35,4 +35,13 @@ class Transaction {
   }
 }
 
-List<Transaction> transactions = [];
+List<Transaction> transactions = [
+  Transaction(
+    "X-Tudão",
+    value: 29.00,
+    date: new DateTime(2025, 09, 16),
+    participantIds: [1],
+    type: TransactionType.individual,
+    groupId: 1,
+  ),
+];
