@@ -1,4 +1,11 @@
 import 'package:divide_ai/components/ui/item_menu.dart';
+import 'package:divide_ai/components/transaction/bill_card.dart';
+import 'package:divide_ai/components/transaction/spent_card.dart';
+import 'package:divide_ai/components/ui/custom_app_bar.dart';
+import 'package:divide_ai/components/users/user_card.dart';
+import 'package:divide_ai/copy.dart';
+import 'package:divide_ai/models/enums/transaction_type.dart';
+import 'package:divide_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:divide_ai/theme/AppTheme.dart';
 import 'package:hugeicons/hugeicons.dart'; 

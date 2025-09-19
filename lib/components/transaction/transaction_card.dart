@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:divide_ai/enums/transaction_type.dart';
+import 'package:divide_ai/models/enums/transaction_type.dart';
 
 class Transaction {
   final String title;
