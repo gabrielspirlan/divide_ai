@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 enum InfoCardSize { small, medium, large }
+
 enum InfoCardAlignment { vertical, horizontal }
+
 enum InfoCardColor { blue, green }
 
 class InfoCard extends StatelessWidget {
@@ -21,16 +23,6 @@ class InfoCard extends StatelessWidget {
     this.alignment = InfoCardAlignment.vertical,
     this.colorOption = InfoCardColor.blue,
   }) : super(key: key);
-
-  Color _getColor(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    switch (colorOption) {
-      case InfoCardColor.green:
-        return colorScheme.secondary; 
-      case InfoCardColor.blue:
-        return colorScheme.primary; 
-    }
-  }
 
   double _getFontSizeTitle() {
     switch (size) {
@@ -67,69 +59,79 @@ class InfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     final isVertical = alignment == InfoCardAlignment.vertical;
-    final Color cardColor = _getColor(context);
 
-    return Container(
-      padding: _getPadding(),
-      decoration: BoxDecoration(
-        color: cardColor.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: cardColor, width: 1.5),
+    final Color backgroundColor = colorOption == InfoCardColor.blue
+        ? colorScheme.primaryContainer
+        : colorScheme.secondaryContainer;
+
+    final Color borderColor = colorOption == InfoCardColor.blue
+        ? colorScheme.primary
+        : colorScheme.secondary;
+
+    final Color textColor = colorOption == InfoCardColor.blue
+        ? colorScheme.inversePrimary
+        : colorScheme.onSecondaryFixed;
+
+    return Card(
+      color: backgroundColor,
+
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: isVertical
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(icon, color: borderColor, size: _getFontSizeValue() + 8),
+                  const SizedBox(height: 6),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: _getFontSizeTitle(),
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    value,
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: _getFontSizeValue(),
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              )
+            : Row(
+                children: [
+                  Icon(icon, color: borderColor, size: _getFontSizeValue() + 8),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: _getFontSizeTitle(),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        value,
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: _getFontSizeValue(),
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
       ),
-      child: isVertical
-          ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon, color: cardColor, size: _getFontSizeValue() + 8),
-                const SizedBox(height: 6),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: cardColor,
-                    fontSize: _getFontSizeTitle(),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: TextStyle(
-                    color: cardColor,
-                    fontSize: _getFontSizeValue(),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Icon(icon, color: cardColor, size: _getFontSizeValue() + 8),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: cardColor,
-                        fontSize: _getFontSizeTitle(),
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    Text(
-                      value,
-                      style: TextStyle(
-                        color: cardColor,
-                        fontSize: _getFontSizeValue(),
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
     );
   }
 }
