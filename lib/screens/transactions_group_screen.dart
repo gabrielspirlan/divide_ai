@@ -5,7 +5,7 @@ import 'package:divide_ai/components/ui/info_card.dart';
 import 'package:divide_ai/components/ui/special_info_card.dart';
 import 'package:divide_ai/models/data/group.dart';
 import 'package:divide_ai/models/data/transaction.dart';
-import 'package:divide_ai/models/data/user.dart';
+import 'package:divide_ai/screens/create_transaction_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
@@ -40,6 +40,8 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
         sharedTotal += transaction.value;
       }
     }
+
+
 
     final formatter = NumberFormat.simpleCurrency(locale: 'pt_BR');
 
@@ -106,7 +108,25 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
                 Button(
                   text: "Adicionar gasto",
                   icon: Icons.add,
-                  onPressed: () => print("Nova Transação"),
+                  onPressed: () async {
+                    await Future.delayed(Duration(milliseconds: 200));
+
+                    if (!mounted) return;
+
+                    final result = await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            CreateTransactionScreen(groupId: widget.groupId),
+                      ),
+                    );
+
+                    // Atualizar a tela quando voltar se uma transação foi criada
+                    if (mounted && result == true) {
+                      setState(() {
+                        // Forçar recálculo dos valores e atualização da lista
+                      });
+                    }
+                  },
                   size: ButtonSize.small,
                 ),
               ],
@@ -137,18 +157,7 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
             )
           else
             ...groupTransactions.map((transaction) {
-              final participantNames = transaction.participantIds
-                  .map((id) => users.firstWhere((u) => u.id == id).name)
-                  .toList();
-
-              final transactionForCard = card.Transaction(
-                title: transaction.description,
-                value: transaction.value,
-                date: transaction.date,
-                participants: participantNames,
-              );
-
-              return card.TransactionCard(transactionForCard);
+              return card.TransactionCard(transaction);
             }),
         ],
       ),

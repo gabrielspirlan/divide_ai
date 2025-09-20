@@ -57,6 +57,7 @@ class Button extends StatelessWidget {
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.primary,
+          overlayColor: Theme.of(context).colorScheme.onPrimary,
           shape: RoundedRectangleBorder(
             borderRadius: size == ButtonSize.small
                 ? BorderRadius.circular(200)
@@ -64,7 +65,9 @@ class Button extends StatelessWidget {
           ),
           padding: _getPadding(),
           minimumSize: size == ButtonSize.small ? Size.zero : null,
-          tapTargetSize: size == ButtonSize.small ? MaterialTapTargetSize.shrinkWrap : null,
+          tapTargetSize: size == ButtonSize.small
+              ? MaterialTapTargetSize.shrinkWrap
+              : null,
         ),
         onPressed: onPressed,
         child: Row(

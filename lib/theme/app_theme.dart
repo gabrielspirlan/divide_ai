@@ -22,7 +22,7 @@ class AppTheme {
   static ThemeData darkTheme = ThemeData(
     focusColor: Color(0xFF6a6a6a),
     textTheme: GoogleFonts.robotoTextTheme(Typography.whiteCupertino),
-    scaffoldBackgroundColor: Color(0xFF1a1a1a),
+    scaffoldBackgroundColor: Color(0xFF191919),
     appBarTheme: AppBarTheme(
       backgroundColor: Color(0xFF252525),
       titleTextStyle: TextStyle(fontWeight: FontWeight.w900, fontSize: 26),

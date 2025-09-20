@@ -1,21 +1,9 @@
+import 'package:divide_ai/models/data/transaction.dart';
+import 'package:divide_ai/models/data/user.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:divide_ai/models/enums/transaction_type.dart';
-
-class Transaction {
-  final String title;
-  final double value;
-  final DateTime date;
-  final List<String> participants;
-
-  Transaction({
-    required this.title,
-    required this.value,
-    required this.date,
-    required this.participants,
-  });
-}
 
 class TransactionCard extends StatelessWidget {
   final Transaction transaction;
@@ -24,7 +12,11 @@ class TransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final TransactionType type = transaction.participants.length == 1
+    final participantNames = transaction.participantIds
+        .map((id) => users.firstWhere((u) => u.id == id).name)
+        .toList();
+
+    final TransactionType type = transaction.participantIds.length == 1
         ? TransactionType.individual
         : TransactionType.compartilhado;
 
@@ -60,17 +52,16 @@ class TransactionCard extends StatelessWidget {
                 spacing: 3,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TransactionTitle(transaction.title),
+                  TransactionTitle(transaction.description),
 
-                  TransactionParticipants(type, transaction.participants),
-                  TransactionDate(transaction.date),
+                  TransactionParticipants(type, participantNames),
                 ],
               ),
             ),
             TransactionValueAndBadge(
               transaction.value,
               type,
-              transaction.participants,
+              participantNames,
               badgeColor,
             ),
           ],
