@@ -13,7 +13,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       leadingWidth: 30,
       title: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10),
+        padding: EdgeInsets.only(left: 0, right: 10),
         child: Column(
           spacing: 4,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -41,12 +41,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       ],
       automaticallyImplyLeading: true,
       leading: Navigator.of(context).canPop()
-          ? Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: IconButton(
-                onPressed: () => Navigator.of(context).pop(),
-                icon: Icon(Icons.arrow_back),
-              ),
+          ? IconButton(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: Icon(Icons.arrow_back),
+              padding: EdgeInsets.only(left: 10),
             )
           : null,
       actionsPadding: EdgeInsets.symmetric(horizontal: 10),
