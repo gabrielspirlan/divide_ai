@@ -23,14 +23,14 @@ List<Group> groups = [
   Group(
     "Bahia Lanches",
     description: "Lanches no Bahia Lanches",
-    participantIds: [1, 2],
+    participantIds: [1, 2, 3, 4],
     value: 260.00,
     backgroundIconColor: Colors.blue,
   ),
   Group(
     "Espetinho",
     description: "Espetinho da Fatec",
-    participantIds: [3, 4],
+    participantIds: [1, 2, 3, 4],
     value: 80.00,
     backgroundIconColor: Colors.red,
   ),
