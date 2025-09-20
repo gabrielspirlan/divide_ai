@@ -2,6 +2,7 @@ import 'package:divide_ai/components/group/group_card.dart';
 import 'package:divide_ai/components/ui/button.dart';
 import 'package:divide_ai/components/ui/custom_app_bar.dart';
 import 'package:divide_ai/models/data/group.dart';
+import 'package:divide_ai/screens/transactions_group_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -25,7 +26,7 @@ class HomeState extends State<Home> {
       body: Column(
         children: [
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
             child: Padding(
               padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
               child: Row(
@@ -51,7 +52,23 @@ class HomeState extends State<Home> {
               itemCount: groups.length,
               itemBuilder: (context, index) {
                 final group = groups[index];
-                return GroupCard(group);
+                return GroupCard(
+                  group,
+                  onTap: () async {
+                    // Delay antes de navegar
+                    await Future.delayed(const Duration(milliseconds: 300));
+
+                    if (context.mounted) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              TransactionsGroupScreen(groupId: group.id),
+                        ),
+                      );
+                    }
+                  },
+                );
               },
             ),
           ),
