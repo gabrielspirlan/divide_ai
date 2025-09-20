@@ -4,7 +4,8 @@ import 'package:divide_ai/components/ui/button.dart';
 import 'package:divide_ai/components/ui/info_card.dart'; 
 import 'package:divide_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
+import 'package:divide_ai/theme/AppTheme.dart';
+import 'package:hugeicons/hugeicons.dart'; 
 
 void main() {
   runApp(const MyApp());
@@ -18,27 +19,21 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: AppTheme.darkTheme,
-      home: const InputTestPage(),
+      home: const TransactionTestPage(),
     );
   }
 }
 
-class InputTestPage extends StatelessWidget {
-  const InputTestPage({super.key});
+class TransactionTestPage extends StatelessWidget {
+  const TransactionTestPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // controllers para teste
-    final TextEditingController nameController = TextEditingController();
-    final TextEditingController emailController = TextEditingController();
-    final TextEditingController passwordController = TextEditingController();
-
     return Scaffold(
       appBar: AppBar(title: const Text("Teste de Componentes")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Inputs
             Input(
@@ -79,7 +74,7 @@ class InputTestPage extends StatelessWidget {
                 Theme.of(context).primaryColor,
               ),
               onTap: () {
-                debugPrint("Clicou no grupo");
+                debugPrint("Clicou em Informações pessoais");
               },
             ),
             const SizedBox(height: 24),

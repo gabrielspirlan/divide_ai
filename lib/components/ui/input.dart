@@ -13,7 +13,7 @@ class Input extends StatefulWidget {
   final InputSize size;
 
   const Input({
-    Key? key,
+    super.key,
     required this.label,
     this.hint,
     this.icon,
@@ -21,7 +21,7 @@ class Input extends StatefulWidget {
     this.obscureText = false,
     this.controller,
     this.size = InputSize.medium,
-  }) : super(key: key);
+  });
 
   @override
   State<Input> createState() => _InputState();
@@ -86,7 +86,7 @@ class _InputState extends State<Input> {
           duration: const Duration(milliseconds: 200),
           height: height,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.onBackground,
+            color: Theme.of(context).colorScheme.onSurface,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: _isFocused

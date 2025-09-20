@@ -1,60 +1,55 @@
-import 'package:divide_ai/theme/app_theme.dart';
+import 'package:divide_ai/models/data/group.dart';
+import 'package:divide_ai/models/data/transaction.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
-
-// Classe para salvar informações do grupo
-class Group {
-  final String name;
-  final String description;
-  final String people;
-  final double value;
-  final int items;
-  final Color backgroundColor;
-
-  Group(
-    this.name,
-    this.description,
-    this.people,
-    this.value,
-    this.items,
-    this.backgroundColor,
-  );
-}
 
 class GroupCard extends StatelessWidget {
   final Group group;
   final VoidCallback? onTap;
 
-  GroupCard(this.group, {this.onTap});
+  const GroupCard(this.group, {super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final participants = group.participantIds.map((id) => "User $id").toList();
+    final groupTransactions = transactions
+        .where((t) => t.groupId == group.id)
+        .toList();
+
     return InkWell(
       borderRadius: BorderRadius.circular(15),
-      splashColor: group.backgroundColor,
+      splashColor: group.backgroundIconColor,
       onTap: onTap,
       child: Card(
-        shadowColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        color: Color.fromRGBO(37, 37, 37, 1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        color: Theme.of(context).colorScheme.onSurface,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 20, 0, 20),
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
           child: IntrinsicHeight(
             child: Row(
               spacing: 5,
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                IconBox(
-                  HugeIcons.strokeRoundedUserMultiple02,
-                  Colors.white,
-                  group.backgroundColor,
+                Expanded(
+                  child: Row(
+                    spacing: 10,
+                    children: [
+                      IconBox(
+                        HugeIcons.strokeRoundedUserMultiple02,
+                        Colors.white,
+                        group.backgroundIconColor,
+                      ),
+                      GroupInfos(
+                        group.name,
+                        group.description,
+                        participants.join(', '),
+                      ),
+                    ],
+                  ),
                 ),
-                SizedBox(width: 10),
-                GroupInfos(group.name, group.description, group.people),
-                SizedBox(width: 10),
-                GroupPriceItem(group.value, group.items),
+                GroupPriceItem(group.value, groupTransactions.length),
               ],
             ),
           ),
@@ -69,7 +64,7 @@ class IconBox extends StatelessWidget {
   final Color backgroundColor;
   final Color iconColor;
 
-  IconBox(this.icon, this.iconColor, this.backgroundColor);
+  const IconBox(this.icon, this.iconColor, this.backgroundColor, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -77,9 +72,9 @@ class IconBox extends StatelessWidget {
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(10),
       ),
-      child: Icon(icon, color: iconColor, size: 32),
+      child: Icon(icon, color: iconColor, size: 28),
     );
   }
 }
@@ -89,7 +84,7 @@ class GroupInfos extends StatelessWidget {
   final String description;
   final String people;
 
-  GroupInfos(this.name, this.description, this.people);
+  const GroupInfos(this.name, this.description, this.people, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -100,19 +95,20 @@ class GroupInfos extends StatelessWidget {
         Text(
           name,
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18.0),
+          overflow: TextOverflow.clip,
         ),
         Text(
           description,
-          style: TextStyle(
-            fontSize: 14.0,
-            color: Color.fromRGBO(160, 160, 160, 1),
-          ),
+          style: TextStyle(fontSize: 14.0, color: Colors.grey),
+          overflow: TextOverflow.clip,
         ),
+        SizedBox(height: 2),
         Text(
           people,
           style: TextStyle(
-            fontSize: 14.0,
-            color: Color.fromRGBO(160, 160, 160, 1),
+            fontSize: 12.0,
+            color: Colors.grey,
+            overflow: TextOverflow.clip,
           ),
         ),
       ],
@@ -124,26 +120,22 @@ class GroupPriceItem extends StatelessWidget {
   final double value;
   final int items;
 
-  GroupPriceItem(this.value, this.items);
+  const GroupPriceItem(this.value, this.items, {super.key});
 
   @override
   Widget build(BuildContext context) {
     final formatter = NumberFormat.simpleCurrency(locale: 'pt_BR');
     return Column(
-      spacing: 2,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         Text(
           formatter.format(value),
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
+          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
         ),
         Text(
           "$items itens",
-          style: TextStyle(
-            color: Color.fromRGBO(160, 160, 160, 1),
-            fontSize: 14,
-          ),
+          style: TextStyle(color: Colors.grey, fontSize: 12),
         ),
       ],
     );
