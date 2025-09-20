@@ -66,11 +66,11 @@ class InfoCard extends StatelessWidget {
         ? colorScheme.primaryContainer
         : colorScheme.secondaryContainer;
 
-    final Color borderColor = colorOption == InfoCardColor.blue
-        ? colorScheme.primary
-        : colorScheme.secondary;
-
     final Color textColor = colorOption == InfoCardColor.blue
+        ? colorScheme.onPrimaryFixed
+        : colorScheme.onSecondaryFixed;
+
+    final Color boldTextColor = colorOption == InfoCardColor.blue
         ? colorScheme.inversePrimary
         : colorScheme.onSecondaryFixed;
 
@@ -83,7 +83,7 @@ class InfoCard extends StatelessWidget {
             ? Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(icon, color: borderColor, size: _getFontSizeValue() + 8),
+                  Icon(icon, color: textColor, size: _getFontSizeValue() + 8),
                   const SizedBox(height: 6),
                   Text(
                     title,
@@ -97,7 +97,7 @@ class InfoCard extends StatelessWidget {
                   Text(
                     value,
                     style: TextStyle(
-                      color: textColor,
+                      color: boldTextColor,
                       fontSize: _getFontSizeValue(),
                       fontWeight: FontWeight.w900,
                     ),
@@ -106,7 +106,7 @@ class InfoCard extends StatelessWidget {
               )
             : Row(
                 children: [
-                  Icon(icon, color: borderColor, size: _getFontSizeValue() + 8),
+                  Icon(icon, color: textColor, size: _getFontSizeValue() + 8),
                   const SizedBox(width: 12),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -122,7 +122,7 @@ class InfoCard extends StatelessWidget {
                       Text(
                         value,
                         style: TextStyle(
-                          color: textColor,
+                          color: boldTextColor,
                           fontSize: _getFontSizeValue(),
                           fontWeight: FontWeight.w900,
                         ),

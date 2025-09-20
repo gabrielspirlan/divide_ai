@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String _title;
   final String? description;
-  final Icon? icon;
+  final IconData? icon;
   final VoidCallback? tapIcon;
 
   CustomAppBar(this._title, {this.description, this.icon, this.tapIcon});
@@ -13,7 +13,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       leadingWidth: 30,
       title: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 10),
+        padding: EdgeInsets.only(left: 0, right: 10),
         child: Column(
           spacing: 4,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -36,17 +36,15 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         if (icon != null)
           IconButton(
             onPressed: tapIcon,
-            icon: Icon(Icons.insert_chart_outlined_sharp, color: Colors.white),
+            icon: Icon(icon!, color: Colors.white),
           ),
       ],
       automaticallyImplyLeading: true,
       leading: Navigator.of(context).canPop()
-          ? Padding(
-              padding: EdgeInsets.symmetric(horizontal: 10),
-              child: IconButton(
-                onPressed: () => Navigator.of(context).pop(),
-                icon: Icon(Icons.arrow_back),
-              ),
+          ? IconButton(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: Icon(Icons.arrow_back),
+              padding: EdgeInsets.only(left: 10),
             )
           : null,
       actionsPadding: EdgeInsets.symmetric(horizontal: 10),

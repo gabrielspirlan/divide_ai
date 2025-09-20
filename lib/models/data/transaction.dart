@@ -9,30 +9,96 @@ class Transaction {
   final DateTime date;
   final List<int> participantIds;
   final int groupId;
-  final TransactionType type;
 
   Transaction(
     this.description, {
     required this.value,
     required this.date,
     required this.participantIds,
-    required this.type,
     required this.groupId,
   }) : id = _nextId++ {
     if (participantIds.isEmpty) {
       throw ArgumentError("Participants não pode ser vazio");
     }
-    if (type == TransactionType.individual && participantIds.length > 1) {
-      throw ArgumentError(
-        "Uma transação individual deve ter apenas um participante!",
-      );
-    }
-    if (type == TransactionType.compartilhado && participantIds.length < 2) {
-      throw ArgumentError(
-        "Uma transação compartilhada deve ter pelo menos dois participantes!",
-      );
-    }
   }
 }
 
-List<Transaction> transactions = [];
+List<Transaction> transactions = [
+  Transaction(
+    "X-Tudão",
+    value: 29.00,
+    date: new DateTime(2025, 09, 16),
+    participantIds: [1],
+    groupId: 1,
+  ),
+  Transaction(
+    "X-Franca",
+    value: 32.90,
+    date: new DateTime(2025, 09, 16),
+    participantIds: [2],
+    groupId: 1,
+  ),
+  Transaction(
+    "X-Basqueste",
+    value: 35.50,
+    date: new DateTime(2025, 09, 16),
+    participantIds: [3],
+    groupId: 1,
+  ),
+  Transaction(
+    "X-Tudão",
+    value: 29.00,
+    date: new DateTime(2025, 09, 16),
+    participantIds: [4],
+    groupId: 1,
+  ),
+  Transaction(
+    "Coca-Cola 2 Litros",
+    value: 10.00,
+    date: new DateTime(2025, 09, 16),
+    participantIds: [1, 2, 3, 4],
+    groupId: 1,
+  ),
+  Transaction(
+    "Batatona Cheddar e Óleo",
+    value: 24.00,
+    date: new DateTime(2025, 09, 16),
+    participantIds: [1, 2, 3, 4],
+    groupId: 1,
+  ),
+  Transaction(
+    "Coca-Cola 2 litros",
+    value: 15.00,
+    date: new DateTime(2025, 09, 19),
+    participantIds: [1, 2, 3, 4],
+    groupId: 2,
+  ),
+  Transaction(
+    "Espetinho de Carne",
+    value: 10.00,
+    date: new DateTime(2025, 09, 19),
+    participantIds: [2],
+    groupId: 2,
+  ),
+  Transaction(
+    "Espetinho de Medalhão",
+    value: 10.00,
+    date: new DateTime(2025, 09, 19),
+    participantIds: [4],
+    groupId: 2,
+  ),
+  Transaction(
+    "Espetinho de Medalhão",
+    value: 10.00,
+    date: new DateTime(2025, 09, 19),
+    participantIds: [1],
+    groupId: 2,
+  ),
+  Transaction(
+    "Espetinho de Coração",
+    value: 10.00,
+    date: new DateTime(2025, 09, 19),
+    participantIds: [3],
+    groupId: 2,
+  ),
+];

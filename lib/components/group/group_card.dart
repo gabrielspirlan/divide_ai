@@ -1,5 +1,6 @@
 import 'package:divide_ai/models/data/group.dart';
 import 'package:divide_ai/models/data/transaction.dart';
+import 'package:divide_ai/models/data/user.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -12,18 +13,25 @@ class GroupCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final participants = group.participantIds.map((id) => "User $id").toList();
+    final participants = group.participantIds
+        .map((id) => users.firstWhere((u) => u.id == id))
+        .toList();
+
+    final participantsShow = participants
+        .map((p) => p.name.split(' ').first)
+        .join(', ');
+
     final groupTransactions = transactions
         .where((t) => t.groupId == group.id)
         .toList();
 
     return InkWell(
       borderRadius: BorderRadius.circular(15),
-      splashColor: group.backgroundIconColor,
       onTap: onTap,
       child: Card(
+        margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: Theme.of(context).colorScheme.onSurface,
+        color: Theme.of(context).colorScheme.onBackground,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
           child: IntrinsicHeight(
@@ -44,7 +52,7 @@ class GroupCard extends StatelessWidget {
                       GroupInfos(
                         group.name,
                         group.description,
-                        participants.join(', '),
+                        participantsShow,
                       ),
                     ],
                   ),
@@ -95,21 +103,21 @@ class GroupInfos extends StatelessWidget {
         Text(
           name,
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18.0),
-          overflow: TextOverflow.clip,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
         Text(
           description,
           style: TextStyle(fontSize: 14.0, color: Colors.grey),
-          overflow: TextOverflow.clip,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
         SizedBox(height: 2),
         Text(
           people,
-          style: TextStyle(
-            fontSize: 12.0,
-            color: Colors.grey,
-            overflow: TextOverflow.clip,
-          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+          style: TextStyle(fontSize: 12.0, color: Colors.grey),
         ),
       ],
     );

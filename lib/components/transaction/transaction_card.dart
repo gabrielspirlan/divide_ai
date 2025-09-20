@@ -8,14 +8,12 @@ class Transaction {
   final double value;
   final DateTime date;
   final List<String> participants;
-  final TransactionType type;
 
   Transaction({
     required this.title,
     required this.value,
     required this.date,
     required this.participants,
-    required this.type,
   });
 }
 
@@ -26,25 +24,30 @@ class TransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final IconData icon = transaction.type == TransactionType.individual
+    final TransactionType type = transaction.participants.length == 1
+        ? TransactionType.individual
+        : TransactionType.compartilhado;
+
+    final IconData icon = type == TransactionType.individual
         ? HugeIcons.strokeRoundedUserCheck02
         : HugeIcons.strokeRoundedUserMultiple03;
 
-    final Color badgeColor = transaction.type == TransactionType.individual
+    final Color badgeColor = type == TransactionType.individual
         ? Theme.of(context).colorScheme.onSecondaryFixed
         : Theme.of(context).colorScheme.onPrimaryFixed;
 
-    final Color backgroundColor = transaction.type == TransactionType.individual
+    final Color backgroundColor = type == TransactionType.individual
         ? Theme.of(context).colorScheme.onSecondary
         : Theme.of(context).colorScheme.onPrimary;
 
-    final Color textColor = transaction.type == TransactionType.individual
+    final Color textColor = type == TransactionType.individual
         ? Theme.of(context).colorScheme.onSecondaryFixed
         : Theme.of(context).colorScheme.onPrimaryFixed;
 
     return Card(
-      color: Theme.of(context).colorScheme.onSurface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      color: Theme.of(context).colorScheme.onBackground,
+      margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
         child: Row(
@@ -59,17 +62,14 @@ class TransactionCard extends StatelessWidget {
                 children: [
                   TransactionTitle(transaction.title),
 
-                  TransactionParticipants(
-                    transaction.type,
-                    transaction.participants,
-                  ),
+                  TransactionParticipants(type, transaction.participants),
                   TransactionDate(transaction.date),
                 ],
               ),
             ),
             TransactionValueAndBadge(
               transaction.value,
-              transaction.type,
+              type,
               transaction.participants,
               badgeColor,
             ),
@@ -112,12 +112,24 @@ class TransactionParticipants extends StatelessWidget {
 
   const TransactionParticipants(this._type, this._participants, {super.key});
 
+  String _getFirstName(String fullName) {
+    return fullName.trim().split(' ').first;
+  }
+
+  List<String> _getFirstNames() {
+    return _participants.map((name) => _getFirstName(name)).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final firstNames = _getFirstNames();
+
     return Text(
       _type == TransactionType.individual
-          ? "Gasto de ${_participants.first}"
-          : _participants.join(', '),
+          ? "Gasto de ${firstNames.first}"
+          : firstNames.join(', '),
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
       style: const TextStyle(
         fontSize: 14,
         color: Color.fromRGBO(200, 200, 200, 1),
@@ -223,14 +235,17 @@ class TransactionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 30,
       children: [
-        Text(
-          _title,
-          style: const TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 18,
-            color: Colors.white,
+        Expanded(
+          child: Text(
+            _title,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            style: const TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 18,
+              color: Colors.white,
+            ),
           ),
         ),
       ],
