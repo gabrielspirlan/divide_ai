@@ -1,4 +1,3 @@
-import 'package:divide_ai/components/users/user_card.dart';
 import 'package:divide_ai/models/data/group.dart';
 import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/models/data/user.dart';
@@ -30,8 +29,6 @@ class GroupCard extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(15),
-
-      splashColor: group.backgroundIconColor,
       onTap: onTap,
       child: Card(
         margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
