@@ -62,10 +62,7 @@ class TransactionCard extends StatelessWidget {
                 children: [
                   TransactionTitle(transaction.title),
 
-                  TransactionParticipants(
-                    type,
-                    transaction.participants,
-                  ),
+                  TransactionParticipants(type, transaction.participants),
                   TransactionDate(transaction.date),
                 ],
               ),
@@ -131,6 +128,8 @@ class TransactionParticipants extends StatelessWidget {
       _type == TransactionType.individual
           ? "Gasto de ${firstNames.first}"
           : firstNames.join(', '),
+      overflow: TextOverflow.ellipsis,
+      maxLines: 1,
       style: const TextStyle(
         fontSize: 14,
         color: Color.fromRGBO(200, 200, 200, 1),
