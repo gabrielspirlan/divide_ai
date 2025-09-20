@@ -35,12 +35,12 @@ class AppTheme {
       primary: const Color(0xFF1447e6), // Cor primária (Logo, botões)
       onPrimary: const Color(0xFF273752),
       primaryContainer: const Color(
-        0xFF1b2431,
+        0x1A2B7FFF,
       ), // Cor de Hover ou ativação da primária
       inversePrimary: Color(0xFF93c5fd), // Cor de texto na primária
       onPrimaryFixed: Color(0xFF51A2FF), // Cor de texto na primária
       secondary: const Color(0xFF10b981), // Cor secundária
-      secondaryContainer: const Color(0xFF172b1f),
+      secondaryContainer: const Color(0x1A00C950),
       onSecondary: Color(0xFF1e462e),
       onSecondaryFixed: Color(0xFF07da70),
       seedColor: Color(0x001447e6),
