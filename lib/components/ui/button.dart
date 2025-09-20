@@ -30,7 +30,7 @@ class Button extends StatelessWidget {
   double _getFontSize() {
     switch (size) {
       case ButtonSize.small:
-        return 12;
+        return 14;
       case ButtonSize.medium:
         return 16;
       case ButtonSize.large:
