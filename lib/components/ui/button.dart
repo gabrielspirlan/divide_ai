@@ -30,7 +30,7 @@ class Button extends StatelessWidget {
   double _getFontSize() {
     switch (size) {
       case ButtonSize.small:
-        return 14;
+        return 12;
       case ButtonSize.medium:
         return 16;
       case ButtonSize.large:
@@ -38,31 +38,42 @@ class Button extends StatelessWidget {
     }
   }
 
+  EdgeInsets _getPadding() {
+    switch (size) {
+      case ButtonSize.small:
+        return const EdgeInsets.symmetric(horizontal: 18, vertical: 2);
+      case ButtonSize.medium:
+        return const EdgeInsets.symmetric(horizontal: 20, vertical: 12);
+      case ButtonSize.large:
+        return const EdgeInsets.symmetric(horizontal: 24, vertical: 16);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       height: _getHeight(),
-      width: double.infinity, // 🔹 botão ocupa largura total do container
+      width: size == ButtonSize.small ? null : double.infinity,
       child: ElevatedButton(
         style: ElevatedButton.styleFrom(
           backgroundColor: Theme.of(context).colorScheme.primary,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: size == ButtonSize.small
+                ? BorderRadius.circular(200)
+                : BorderRadius.circular(12),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24), // 🔹 espaçamento fixo
+          padding: _getPadding(),
+          minimumSize: size == ButtonSize.small ? Size.zero : null,
+          tapTargetSize: size == ButtonSize.small ? MaterialTapTargetSize.shrinkWrap : null,
         ),
         onPressed: onPressed,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center, // 🔹 garante centralização
+          spacing: 10,
+          mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
           children: [
             if (icon != null) ...[
-              Icon(
-                icon,
-                size: _getFontSize() + 2,
-                color: Colors.white,
-              ),
-              const SizedBox(width: 12), // 🔹 aumentei o espaçamento ícone-texto
+              Icon(icon, size: _getFontSize() + 2, color: Colors.white),
             ],
             Text(
               text,
