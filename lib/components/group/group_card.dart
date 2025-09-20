@@ -17,8 +17,6 @@ class GroupCard extends StatelessWidget {
         .map((id) => users.firstWhere((u) => u.id == id))
         .toList();
 
-    print(participants[1].name);
-
     final participantsShow = participants
         .map((p) => p.name.split(' ').first)
         .join(', ');
@@ -105,21 +103,21 @@ class GroupInfos extends StatelessWidget {
         Text(
           name,
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18.0),
-          overflow: TextOverflow.clip,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
         Text(
           description,
           style: TextStyle(fontSize: 14.0, color: Colors.grey),
-          overflow: TextOverflow.clip,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
         ),
         SizedBox(height: 2),
         Text(
           people,
-          style: TextStyle(
-            fontSize: 12.0,
-            color: Colors.grey,
-            overflow: TextOverflow.clip,
-          ),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+          style: TextStyle(fontSize: 12.0, color: Colors.grey),
         ),
       ],
     );
