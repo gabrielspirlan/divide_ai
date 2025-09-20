@@ -12,9 +12,8 @@ class Input extends StatefulWidget {
   final TextEditingController? controller;
   final InputSize size;
 
-  const Input({
+  const Input(this.label, {
     super.key,
-    required this.label,
     this.hint,
     this.icon,
     this.keyboardType = TextInputType.text,
@@ -73,20 +72,32 @@ class _InputState extends State<Input> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          widget.label,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: fontSize - 2,
-            color: Colors.white,
-          ),
+        Row(
+          children: [
+            if (widget.icon != null) ...[
+              FaIcon(
+                widget.icon,
+                color: Colors.white,
+                size: iconSize,
+              ),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              widget.label,
+              style: TextStyle(
+                fontWeight: FontWeight.w900,
+                fontSize: fontSize - 2,
+                color: Colors.white,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
         AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           height: height,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.onSurface,
+            color: Theme.of(context).colorScheme.onBackground,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: _isFocused
@@ -95,7 +106,7 @@ class _InputState extends State<Input> {
               width: 2,
             ),
           ),
-          child: Center( 
+          child: Center(
             child: TextField(
               focusNode: _focusNode,
               controller: widget.controller,
@@ -110,17 +121,6 @@ class _InputState extends State<Input> {
                 hintText: widget.hint,
                 hintStyle: const TextStyle(color: Colors.grey),
                 border: InputBorder.none,
-                prefixIcon: widget.icon != null
-                    ? Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        child: FaIcon(widget.icon,
-                            color: Colors.white, size: iconSize),
-                      )
-                    : null,
-                prefixIconConstraints: BoxConstraints(
-                  minWidth: iconSize + 20,
-                  minHeight: iconSize,
-                ),
               ),
             ),
           ),

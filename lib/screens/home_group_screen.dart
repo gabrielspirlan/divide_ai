@@ -58,6 +58,33 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
     });
   }
 
+  // Versão sem setState para usar no _reloadState
+  void _calculateUserExpensesNoSetState() {
+    if (users.isEmpty) return;
+
+    final firstUserId = users.first.id;
+
+    final userTransactions = transactions
+        .where(
+          (transaction) => transaction.participantIds.contains(firstUserId),
+        )
+        .toList();
+
+    double individualTotal = 0.0;
+    double sharedTotal = 0.0;
+
+    for (final transaction in userTransactions) {
+      if (transaction.participantIds.length == 1) {
+        individualTotal += transaction.value;
+      } else {
+        sharedTotal += transaction.value / transaction.participantIds.length;
+      }
+    }
+
+    individualExpenses = individualTotal;
+    sharedExpenses = sharedTotal;
+  }
+
   void _calculateUserGroups() {
     if (users.isEmpty) return;
 
@@ -69,6 +96,25 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
 
     setState(() {
       userGroupsCount = userGroups;
+    });
+  }
+
+  // Versão sem setState para usar no _reloadState
+  void _calculateUserGroupsNoSetState() {
+    if (users.isEmpty) return;
+
+    final firstUserId = users.first.id;
+
+    userGroupsCount = groups.where((group) =>
+      group.participantIds.contains(firstUserId)
+    ).length;
+  }
+
+  void _reloadState() {
+    setState(() {
+      // Recalcular todas as despesas e grupos do usuário
+      _calculateUserExpensesNoSetState();
+      _calculateUserGroupsNoSetState();
     });
   }
 
@@ -160,13 +206,16 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
                 await Future.delayed(const Duration(milliseconds: 300));
 
                 if (context.mounted) {
-                  Navigator.push(
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) =>
                           TransactionsGroupScreen(groupId: group.id),
                     ),
                   );
+
+                  // Recarregar o estado quando voltar da tela de transações
+                  _reloadState();
                 }
               },
             );

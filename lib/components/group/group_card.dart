@@ -25,6 +25,11 @@ class GroupCard extends StatelessWidget {
         .where((t) => t.groupId == group.id)
         .toList();
 
+    double totalGroupValue = 0.0;
+    for (final transaction in groupTransactions) {
+      totalGroupValue += transaction.value;
+    }
+
     return InkWell(
       borderRadius: BorderRadius.circular(15),
       onTap: onTap,
@@ -57,7 +62,7 @@ class GroupCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                GroupPriceItem(group.value, groupTransactions.length),
+                GroupPriceItem(totalGroupValue, groupTransactions.length),
               ],
             ),
           ),
