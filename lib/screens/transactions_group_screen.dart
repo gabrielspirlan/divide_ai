@@ -6,6 +6,7 @@ import 'package:divide_ai/components/ui/special_info_card.dart';
 import 'package:divide_ai/models/data/group.dart';
 import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/screens/create_transaction_screen.dart';
+import 'package:divide_ai/screens/bill_group_screen.dart';
 import 'package:divide_ai/services/analytics_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -39,6 +40,21 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
     AnalyticsService.trackPageLoading('transactions_group_screen', loadTime);
   }
 
+  void _navigateToBillScreen() async {
+    AnalyticsService.trackEvent(
+      elementId: 'analytics_button',
+      eventType: 'CLICK',
+      page: 'transactions_group_screen',
+    );
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => BillGroupScreen(groupId: widget.groupId),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final group = groups.firstWhere((g) => g.id == widget.groupId);
@@ -68,11 +84,11 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
         group.name,
         description: group.description,
         icon: HugeIcons.strokeRoundedAnalytics01,
+        tapIcon: _navigateToBillScreen,
       ),
 
       body: ListView(
         children: [
-          // Cards de informações
           Padding(
             padding: EdgeInsets.fromLTRB(5, 10, 5, 5),
             child: Column(
@@ -113,7 +129,6 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
             ),
           ),
 
-          // Cabeçalho da seção de gastos
           Padding(
             padding: EdgeInsets.fromLTRB(15, 15, 15, 5),
             child: Row(
@@ -138,10 +153,8 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
                       ),
                     );
 
-                    // Atualizar a tela quando voltar se uma transação foi criada
                     if (mounted && result == true) {
                       setState(() {
-                        // Forçar recálculo dos valores e atualização da lista
                       });
                     }
                   },
@@ -151,7 +164,6 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
             ),
           ),
 
-          // Lista de transações ou estado vazio
           if (groupTransactions.isEmpty)
             SizedBox(
               height: 300,
