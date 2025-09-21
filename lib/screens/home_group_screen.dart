@@ -7,6 +7,7 @@ import 'package:divide_ai/models/data/group.dart';
 import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/screens/transactions_group_screen.dart';
+import 'package:divide_ai/services/analytics_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
@@ -22,12 +23,23 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
   double individualExpenses = 0.0;
   double sharedExpenses = 0.0;
   int userGroupsCount = 0;
+  late final int _pageLoadStartTime;
 
   @override
   void initState() {
     super.initState();
+    _pageLoadStartTime = DateTime.now().millisecondsSinceEpoch;
     _calculateUserExpenses();
     _calculateUserGroups();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _trackPageLoad();
+    });
+  }
+
+  void _trackPageLoad() {
+    final loadTime = DateTime.now().millisecondsSinceEpoch - _pageLoadStartTime;
+    AnalyticsService.trackPageView('home_group_screen', loadTime);
+    AnalyticsService.trackPageLoading('home_group_screen', loadTime);
   }
 
   void _calculateUserExpenses() {

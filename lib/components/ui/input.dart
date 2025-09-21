@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:divide_ai/services/analytics_service.dart';
 
 enum InputSize { small, medium, large }
 
@@ -39,8 +40,21 @@ class _InputState extends State<Input> {
     _focusNode.addListener(() {
       setState(() {
         _isFocused = _focusNode.hasFocus;
+        if (_isFocused) {
+          _trackInputFocus();
+        }
       });
     });
+  }
+
+  void _trackInputFocus() {
+    final route = ModalRoute.of(context);
+    final pageName = route?.settings.name ?? 'unknown_page';
+    AnalyticsService.trackEvent(
+      elementId: widget.label.toLowerCase().replaceAll(' ', '_'),
+      eventType: 'CLICK',
+      page: pageName,
+    );
   }
 
   @override

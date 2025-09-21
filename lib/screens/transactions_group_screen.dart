@@ -6,6 +6,7 @@ import 'package:divide_ai/components/ui/special_info_card.dart';
 import 'package:divide_ai/models/data/group.dart';
 import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/screens/create_transaction_screen.dart';
+import 'package:divide_ai/services/analytics_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +22,23 @@ class TransactionsGroupScreen extends StatefulWidget {
 }
 
 class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
+  late final int _pageLoadStartTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageLoadStartTime = DateTime.now().millisecondsSinceEpoch;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _trackPageLoad();
+    });
+  }
+
+  void _trackPageLoad() {
+    final loadTime = DateTime.now().millisecondsSinceEpoch - _pageLoadStartTime;
+    AnalyticsService.trackPageView('transactions_group_screen', loadTime);
+    AnalyticsService.trackPageLoading('transactions_group_screen', loadTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     final group = groups.firstWhere((g) => g.id == widget.groupId);

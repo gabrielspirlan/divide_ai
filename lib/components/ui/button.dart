@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:divide_ai/services/analytics_service.dart';
 
 enum ButtonSize { small, medium, large }
 
@@ -15,6 +16,12 @@ class Button extends StatelessWidget {
     this.icon,
     this.size = ButtonSize.medium,
   });
+
+  void _trackButtonClick(BuildContext context) {
+    final route = ModalRoute.of(context);
+    final pageName = route?.settings.name ?? 'unknown_page';
+    AnalyticsService.trackButtonClick(text, pageName);
+  }
 
   double _getHeight() {
     switch (size) {
@@ -69,7 +76,10 @@ class Button extends StatelessWidget {
               ? MaterialTapTargetSize.shrinkWrap
               : null,
         ),
-        onPressed: onPressed,
+        onPressed: () {
+          _trackButtonClick(context);
+          onPressed();
+        },
         child: Row(
           spacing: 10,
           mainAxisAlignment: MainAxisAlignment.center,

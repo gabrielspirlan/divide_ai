@@ -1,6 +1,7 @@
 import 'package:divide_ai/models/data/group.dart';
 import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/models/data/user.dart';
+import 'package:divide_ai/services/analytics_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -32,7 +33,16 @@ class GroupCard extends StatelessWidget {
 
     return InkWell(
       borderRadius: BorderRadius.circular(15),
-      onTap: onTap,
+      onTap: () {
+        final route = ModalRoute.of(context);
+        final pageName = route?.settings.name ?? 'home_group_screen';
+        AnalyticsService.trackEvent(
+          elementId: group.name.toLowerCase().replaceAll(' ', '_'),
+          eventType: 'CLICK',
+          page: pageName,
+        );
+        onTap?.call();
+      },
       child: Card(
         margin: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

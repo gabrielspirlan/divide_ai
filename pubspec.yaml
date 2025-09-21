@@ -38,6 +38,7 @@ dependencies:
   intl: ^0.18.1
   font_awesome_flutter: ^10.9.1
   hugeicons: ^0.0.1
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:

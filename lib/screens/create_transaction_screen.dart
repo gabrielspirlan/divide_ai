@@ -6,6 +6,7 @@ import 'package:divide_ai/components/ui/input.dart';
 import 'package:divide_ai/components/ui/select_member.dart';
 import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/data/transaction.dart';
+import 'package:divide_ai/services/analytics_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -23,6 +24,22 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _valueController = TextEditingController();
   Set<int> _selectedParticipantIndexes = {0};
+  late final int _pageLoadStartTime;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageLoadStartTime = DateTime.now().millisecondsSinceEpoch;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _trackPageLoad();
+    });
+  }
+
+  void _trackPageLoad() {
+    final loadTime = DateTime.now().millisecondsSinceEpoch - _pageLoadStartTime;
+    AnalyticsService.trackPageView('create_transaction_screen', loadTime);
+    AnalyticsService.trackPageLoading('create_transaction_screen', loadTime);
+  }
 
   void _onParticipantsChanged(Set<int> selectedIndexes) {
     setState(() {
