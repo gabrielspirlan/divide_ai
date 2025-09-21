@@ -1,14 +1,8 @@
+import 'package:divide_ai/models/data/user.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-class User {
-  final String name;
-  final String email;
-
-  User(this.name, {required this.email});
-}
-
-class UserCard extends StatelessWidget  {
+class UserCard extends StatelessWidget {
   final User _user;
   final VoidCallback onTap;
 

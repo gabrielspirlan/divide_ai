@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 
 class AnalyticsService {
   static const String _baseUrl =
-      'https://divide-ai-api-i8en.onrender.com/event';
+      'https://localhost:8080/event'; // API Rodando Local
+  // 'https://divide-ai-api-i8en.onrender.com/event'; // API Rodando em Production
 
   static Future<void> trackEvent({
     required String elementId,
