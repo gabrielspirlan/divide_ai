@@ -2,8 +2,6 @@ import 'package:divide_ai/components/group/select_members_group.dart';
 import 'package:divide_ai/components/ui/button.dart';
 import 'package:divide_ai/components/ui/card_input.dart';
 import 'package:divide_ai/components/ui/custom_app_bar.dart';
-import 'package:divide_ai/components/ui/input.dart';
-import 'package:divide_ai/components/ui/select_member.dart';
 import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/services/analytics_service.dart';
@@ -96,7 +94,6 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
 
     transactions.add(newTransaction);
 
-    // Voltar para a tela anterior retornando true para indicar que uma transação foi criada
     if (mounted) {
       Navigator.of(context).pop(true);
     }
