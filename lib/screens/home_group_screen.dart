@@ -70,7 +70,6 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
     });
   }
 
-  // Versão sem setState para usar no _reloadState
   void _calculateUserExpensesNoSetState() {
     if (users.isEmpty) return;
 
@@ -111,7 +110,6 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
     });
   }
 
-  // Versão sem setState para usar no _reloadState
   void _calculateUserGroupsNoSetState() {
     if (users.isEmpty) return;
 
@@ -124,7 +122,6 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
 
   void _reloadState() {
     setState(() {
-      // Recalcular todas as despesas e grupos do usuário
       _calculateUserExpensesNoSetState();
       _calculateUserGroupsNoSetState();
     });
@@ -143,7 +140,6 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
 
       body: ListView(
         children: [
-          // Cards de informações do usuário
           Padding(
             padding: EdgeInsets.fromLTRB(5, 10, 5, 5),
             child: Column(
@@ -186,7 +182,6 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
             ),
           ),
 
-          // Cabeçalho da seção de grupos
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
             child: Padding(
@@ -209,12 +204,10 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
             ),
           ),
 
-          // Lista de grupos
           ...groups.map((group) {
             return GroupCard(
               group,
               onTap: () async {
-                // Delay antes de navegar
                 await Future.delayed(const Duration(milliseconds: 300));
 
                 if (context.mounted) {
@@ -226,7 +219,6 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
                     ),
                   );
 
-                  // Recarregar o estado quando voltar da tela de transações
                   _reloadState();
                 }
               },

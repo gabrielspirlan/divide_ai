@@ -47,7 +47,7 @@ class SpecialInfoCard extends StatelessWidget {
               value,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 22,
+                fontSize: 24,
                 fontWeight: FontWeight.w900,
               ),
             ),

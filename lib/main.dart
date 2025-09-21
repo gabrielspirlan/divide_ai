@@ -1,10 +1,7 @@
-import 'package:divide_ai/screens/create_transaction_screen.dart';
-import 'package:divide_ai/screens/transactions_group_screen.dart';
 import 'package:divide_ai/screens/home_group_screen.dart';
 import 'package:divide_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
