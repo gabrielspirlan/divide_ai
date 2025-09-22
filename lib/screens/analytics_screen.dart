@@ -55,7 +55,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with SingleTickerProv
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
       appBar: CustomAppBar(
         "Analytics Dashboard",
         description: "Métricas de uso do app",
