@@ -36,7 +36,7 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
 
   void _trackPageLoad() {
     final loadTime = DateTime.now().millisecondsSinceEpoch - _pageLoadStartTime;
-    AnalyticsService.trackPageView('transactions_group_screen', loadTime);
+    AnalyticsService.trackPageView('transactions_group_screen');
     AnalyticsService.trackPageLoading('transactions_group_screen', loadTime);
   }
 

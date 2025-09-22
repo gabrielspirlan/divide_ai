@@ -35,7 +35,7 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
 
   void _trackPageLoad() {
     final loadTime = DateTime.now().millisecondsSinceEpoch - _pageLoadStartTime;
-    AnalyticsService.trackPageView('create_transaction_screen', loadTime);
+    AnalyticsService.trackPageView('create_transaction_screen');
     AnalyticsService.trackPageLoading('create_transaction_screen', loadTime);
   }
 

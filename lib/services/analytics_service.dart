@@ -15,16 +15,20 @@ class AnalyticsService {
     int? loading,
   }) async {
     try {
-      final payload = {
+      final payload = <String, dynamic>{
         'elementId': elementId,
         'variant': 'A',
         'eventType': eventType,
         'page': page,
-        'loading': loading ?? DateTime.now().millisecondsSinceEpoch,
       };
 
+      // Só adiciona o campo 'loading' para eventos do tipo 'LOADING'
+      if (eventType == 'LOADING') {
+        payload['loading'] = loading ?? DateTime.now().millisecondsSinceEpoch;
+      }
+
       await http.post(
-        Uri.parse('$_baseUrl/event'), 
+        Uri.parse('$_baseUrl/event'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(payload),
       );
@@ -38,12 +42,11 @@ class AnalyticsService {
     await trackEvent(elementId: elementId, eventType: 'CLICK', page: page);
   }
 
-  static Future<void> trackPageView(String page, int loadingTime) async {
+  static Future<void> trackPageView(String page) async {
     await trackEvent(
       elementId: page,
       eventType: 'PAGE_VIEW',
       page: page,
-      loading: loadingTime,
     );
   }
   
