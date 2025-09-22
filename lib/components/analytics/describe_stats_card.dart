@@ -21,8 +21,10 @@ class DescribeStatsCard extends StatelessWidget {
     Widget rightSideWidget;
 
     if (type == StatsTypeEnum.loading) {
+      // 👇 CORREÇÃO AQUI: A multiplicação por 1000 foi removida.
+      // O valor agora é apenas convertido para inteiro.
       rightSideWidget = Text(
-        '${loadingTime?.toStringAsFixed(1) ?? 'N/A'}s',
+        '${(loadingTime ?? 0).toInt()}ms',
         style: const TextStyle(
           color: Color(0xFFE8B953),
           fontWeight: FontWeight.bold,
