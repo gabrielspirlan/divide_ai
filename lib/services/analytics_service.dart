@@ -5,8 +5,6 @@ import 'package:divide_ai/models/analytics_models.dart';
 
 class AnalyticsService {
   static const String _baseUrl = 'https://divide-ai-api-i8en.onrender.com';
-  // Para desenvolvimento local com emulador Android, use: 'http://10.0.2.2:8080'
-  // static const String _baseUrl = 'http://10.0.2.2:8080';
 
   static Future<void> trackEvent({
     required String elementId,
@@ -22,7 +20,7 @@ class AnalyticsService {
         'page': page,
       };
 
-      // Só adiciona o campo 'loading' para eventos do tipo 'LOADING'
+      
       if (eventType == 'LOADING') {
         payload['loading'] = loading ?? DateTime.now().millisecondsSinceEpoch;
       }
@@ -77,7 +75,7 @@ class AnalyticsService {
     );
   }
 
-  /// Testa a conectividade básica com a API
+
   static Future<bool> testConnectivity() async {
     try {
       debugPrint('Testando conectividade com: $_baseUrl');
@@ -98,7 +96,6 @@ class AnalyticsService {
     try {
       debugPrint('Iniciando busca de dados de analytics...');
 
-      // Primeiro testa a conectividade
       final isConnected = await testConnectivity();
       if (!isConnected) {
         throw Exception('Não foi possível conectar com a API');
