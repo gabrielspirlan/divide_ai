@@ -28,6 +28,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with SingleTickerProv
 
   Future<void> _fetchData() async {
     try {
+      debugPrint('Iniciando busca de dados...');
       // O método a ser chamado agora é o que busca tudo
       final data = await _analyticsService.fetchAllAnalyticsData();
       if (mounted) {
@@ -36,14 +37,25 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with SingleTickerProv
           _isLoading = false;
         });
       }
+      debugPrint('Dados carregados com sucesso!');
     } catch (e) {
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
       }
-      print('Erro ao buscar dados: $e');
-      
+      debugPrint('Erro ao buscar dados: $e');
+
+      // Mostra um SnackBar com o erro
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erro ao carregar dados: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 5),
+          ),
+        );
+      }
     }
   }
 
@@ -75,7 +87,42 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with SingleTickerProv
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _analyticsData == null
-              ? const Center(child: Text('Não foi possível carregar os dados.', style: TextStyle(color: Colors.white)))
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline, color: Colors.red, size: 64),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Não foi possível carregar os dados.',
+                        style: TextStyle(color: Colors.white, fontSize: 16),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Verifique sua conexão com a internet.',
+                        style: TextStyle(color: Colors.grey, fontSize: 14),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            _isLoading = true;
+                            _analyticsData = null;
+                          });
+                          _fetchData();
+                        },
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('Tentar Novamente'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                )
               : buildDashboard(),
     );
   }

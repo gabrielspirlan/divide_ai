@@ -14,9 +14,9 @@ class SummaryData {
 
   factory SummaryData.fromJson(Map<String, dynamic> json) {
     return SummaryData(
-      averageLoadingTime: (json['averageLoadingTime'] as num).toDouble(),
-      totalClicks: json['totalClicks'],
-      totalPageViews: json['totalPageViews'],
+      averageLoadingTime: (json['averageLoadingTime'] as num?)?.toDouble() ?? 0.0,
+      totalClicks: (json['totalClicks'] as int?) ?? 0,
+      totalPageViews: (json['totalPageViews'] as int?) ?? 0,
     );
   }
 }
@@ -31,22 +31,22 @@ class InsightData {
   // factory customizado para cada tipo de insight
   factory InsightData.fromSlowestPage(Map<String, dynamic> json) {
     return InsightData(
-      targetName: json['page'] ?? 'N/A',
-      value: (json['loadingTime'] as num).toDouble(),
+      targetName: json['page'] ?? json['elementId'] ?? 'N/A',
+      value: (json['loadingTime'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
   factory InsightData.fromMostClicked(Map<String, dynamic> json) {
     return InsightData(
-      targetName: json['elementId'] ?? 'N/A',
-      value: (json['clickCount'] as num).toDouble(),
+      targetName: json['elementId'] ?? json['page'] ?? 'N/A',
+      value: (json['clickCount'] as num?)?.toDouble() ?? 0.0,
     );
   }
 
   factory InsightData.fromMostAccessed(Map<String, dynamic> json) {
     return InsightData(
-      targetName: json['page'] ?? 'N/A',
-      value: (json['accessCount'] as num).toDouble(),
+      targetName: json['page'] ?? json['elementId'] ?? 'N/A',
+      value: (json['accessCount'] as num?)?.toDouble() ?? 0.0,
     );
   }
 }
@@ -68,8 +68,8 @@ class HistoryEvent {
   factory HistoryEvent.fromLoadingHistory(Map<String, dynamic> json) {
     return HistoryEvent(
       eventName: json['page'] ?? 'N/A',
-      date: DateTime.parse(json['created_at']),
-      value: (json['loading'] as num).toDouble(),
+      date: DateTime.parse(json['createdAt'] ?? json['created_at'] ?? DateTime.now().toIso8601String()),
+      value: (json['loading'] as num?)?.toDouble() ?? 0.0,
       type: StatsTypeEnum.loading,
     );
   }
@@ -77,7 +77,7 @@ class HistoryEvent {
   factory HistoryEvent.fromClickHistory(Map<String, dynamic> json) {
     return HistoryEvent(
       eventName: json['elementId'] ?? 'N/A',
-      date: DateTime.parse(json['created_at']),
+      date: DateTime.parse(json['createdAt'] ?? json['created_at'] ?? DateTime.now().toIso8601String()),
       value: 0, // Click não tem um valor de tempo
       type: StatsTypeEnum.click,
     );
@@ -86,7 +86,7 @@ class HistoryEvent {
   factory HistoryEvent.fromViewHistory(Map<String, dynamic> json) {
     return HistoryEvent(
       eventName: json['page'] ?? 'N/A',
-      date: DateTime.parse(json['created_at']),
+      date: DateTime.parse(json['createdAt'] ?? json['created_at'] ?? DateTime.now().toIso8601String()),
       value: 0, // View não tem um valor de tempo
       type: StatsTypeEnum.visualization,
     );

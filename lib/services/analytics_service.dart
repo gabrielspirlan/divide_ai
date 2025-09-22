@@ -5,6 +5,8 @@ import 'package:divide_ai/models/analytics_models.dart';
 
 class AnalyticsService {
   static const String _baseUrl = 'https://divide-ai-api-i8en.onrender.com';
+  // Para desenvolvimento local com emulador Android, use: 'http://10.0.2.2:8080'
+  // static const String _baseUrl = 'http://10.0.2.2:8080';
 
   static Future<void> trackEvent({
     required String elementId,
@@ -72,8 +74,33 @@ class AnalyticsService {
     );
   }
 
+  /// Testa a conectividade básica com a API
+  static Future<bool> testConnectivity() async {
+    try {
+      debugPrint('Testando conectividade com: $_baseUrl');
+      final response = await http.get(
+        Uri.parse('$_baseUrl/event/analytics/stats'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(Duration(seconds: 5));
+
+      debugPrint('Teste de conectividade - Status: ${response.statusCode}');
+      return response.statusCode == 200;
+    } catch (e) {
+      debugPrint('Teste de conectividade falhou: $e');
+      return false;
+    }
+  }
+
   Future<AnalyticsData> fetchAllAnalyticsData() async {
     try {
+      debugPrint('Iniciando busca de dados de analytics...');
+
+      // Primeiro testa a conectividade
+      final isConnected = await testConnectivity();
+      if (!isConnected) {
+        throw Exception('Não foi possível conectar com a API');
+      }
+
       final responses = await Future.wait([
         _getSummary(),
         _getSlowestPage(),
@@ -84,6 +111,7 @@ class AnalyticsService {
         _getViewHistory(),
       ]);
 
+      debugPrint('Todos os dados foram carregados com sucesso');
       return AnalyticsData(
         summary: responses[0] as SummaryData,
         slowestPage: responses[1] as InsightData,
@@ -94,74 +122,151 @@ class AnalyticsService {
         viewHistory: responses[6] as List<HistoryEvent>,
       );
     } catch (e) {
-      print("Erro ao buscar dados da API: $e");
-      throw Exception('Falha ao carregar dados de analytics');
+      debugPrint("Erro ao buscar dados da API: $e");
+      throw Exception('Falha ao carregar dados de analytics: $e');
     }
   }
 
   Future<SummaryData> _getSummary() async {
-    final response = await http.get(Uri.parse('$_baseUrl/event/analytics/stats'));
-    if (response.statusCode == 200) {
-      return SummaryData.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load summary');
+    try {
+      debugPrint('Fazendo requisição para: $_baseUrl/event/analytics/stats');
+      final response = await http.get(
+        Uri.parse('$_baseUrl/event/analytics/stats'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(Duration(seconds: 10));
+
+      debugPrint('Status da resposta: ${response.statusCode}');
+
+      if (response.statusCode == 200) {
+        debugPrint('Dados recebidos com sucesso');
+        return SummaryData.fromJson(jsonDecode(response.body));
+      } else {
+        debugPrint('Erro HTTP: ${response.statusCode} - ${response.body}');
+        throw Exception('Failed to load summary: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Erro ao buscar summary: $e');
+      rethrow;
     }
   }
 
   Future<InsightData> _getSlowestPage() async {
-    final response = await http.get(Uri.parse('$_baseUrl/event/analytics/slowest-loading-item'));
-    if (response.statusCode == 200) {
-      return InsightData.fromSlowestPage(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load slowest page');
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/event/analytics/slowest-loading-item'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        return InsightData.fromSlowestPage(jsonDecode(response.body));
+      } else {
+        debugPrint('Erro ao buscar slowest page: ${response.statusCode}');
+        throw Exception('Failed to load slowest page: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Erro ao buscar slowest page: $e');
+      rethrow;
     }
   }
 
   Future<InsightData> _getMostClickedButton() async {
-    final response = await http.get(Uri.parse('$_baseUrl/event/analytics/most-clicked-element'));
-    if (response.statusCode == 200) {
-      return InsightData.fromMostClicked(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load most clicked');
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/event/analytics/most-clicked-element'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        return InsightData.fromMostClicked(jsonDecode(response.body));
+      } else {
+        debugPrint('Erro ao buscar most clicked: ${response.statusCode}');
+        throw Exception('Failed to load most clicked: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Erro ao buscar most clicked: $e');
+      rethrow;
     }
   }
 
   Future<InsightData> _getMostViewedPage() async {
-    final response = await http.get(Uri.parse('$_baseUrl/event/analytics/most-accessed-page'));
-    if (response.statusCode == 200) {
-      return InsightData.fromMostAccessed(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load most accessed');
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/event/analytics/most-accessed-page'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        return InsightData.fromMostAccessed(jsonDecode(response.body));
+      } else {
+        debugPrint('Erro ao buscar most accessed: ${response.statusCode}');
+        throw Exception('Failed to load most accessed: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Erro ao buscar most accessed: $e');
+      rethrow;
     }
   }
 
   Future<List<HistoryEvent>> _getLoadingHistory() async {
-    final response = await http.get(Uri.parse('$_baseUrl/event/analytics/loading-history'));
-    if (response.statusCode == 200) {
-      final List<dynamic> eventList = jsonDecode(response.body)['recentEvents'];
-      return eventList.map((json) => HistoryEvent.fromLoadingHistory(json)).toList();
-    } else {
-      throw Exception('Failed to load loading history');
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/event/analytics/loading-history'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final List<dynamic> eventList = responseData['recentEvents'] ?? [];
+        return eventList.map((json) => HistoryEvent.fromLoadingHistory(json)).toList();
+      } else {
+        debugPrint('Erro ao buscar loading history: ${response.statusCode}');
+        throw Exception('Failed to load loading history: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Erro ao buscar loading history: $e');
+      rethrow;
     }
   }
 
   Future<List<HistoryEvent>> _getClickHistory() async {
-    final response = await http.get(Uri.parse('$_baseUrl/event/analytics/click-history'));
-    if (response.statusCode == 200) {
-      final List<dynamic> eventList = jsonDecode(response.body)['recentEvents'];
-      return eventList.map((json) => HistoryEvent.fromClickHistory(json)).toList();
-    } else {
-      throw Exception('Failed to load click history');
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/event/analytics/click-history'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final List<dynamic> eventList = responseData['recentEvents'] ?? [];
+        return eventList.map((json) => HistoryEvent.fromClickHistory(json)).toList();
+      } else {
+        debugPrint('Erro ao buscar click history: ${response.statusCode}');
+        throw Exception('Failed to load click history: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Erro ao buscar click history: $e');
+      rethrow;
     }
   }
   
   Future<List<HistoryEvent>> _getViewHistory() async {
-    final response = await http.get(Uri.parse('$_baseUrl/event/analytics/page-view-history'));
-    if (response.statusCode == 200) {
-      final List<dynamic> eventList = jsonDecode(response.body)['recentEvents'];
-      return eventList.map((json) => HistoryEvent.fromViewHistory(json)).toList();
-    } else {
-      throw Exception('Failed to load view history');
+    try {
+      final response = await http.get(
+        Uri.parse('$_baseUrl/event/analytics/page-view-history'),
+        headers: {'Content-Type': 'application/json'},
+      ).timeout(Duration(seconds: 10));
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final List<dynamic> eventList = responseData['recentEvents'] ?? [];
+        return eventList.map((json) => HistoryEvent.fromViewHistory(json)).toList();
+      } else {
+        debugPrint('Erro ao buscar view history: ${response.statusCode}');
+        throw Exception('Failed to load view history: ${response.statusCode}');
+      }
+    } catch (e) {
+      debugPrint('Erro ao buscar view history: $e');
+      rethrow;
     }
   }
 }
