@@ -1,0 +1,5 @@
+enum ColorSelectorVariant {
+  azul,
+  
+  verde,
+}
