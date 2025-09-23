@@ -1,4 +1,4 @@
-import 'package:divide_ai/screens/analytics_screen.dart';
+
 import 'package:divide_ai/screens/home_group_screen.dart';
 import 'package:divide_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Divide Aí',
       theme: AppTheme.darkTheme,
-      home: const AnalyticsScreen(),
+      home: const HomeGroupScreen(),
     );
   }
 }
