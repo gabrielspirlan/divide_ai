@@ -24,8 +24,8 @@ AnalyticsService.trackEvent(
 AnalyticsService.trackButtonClick('texto_botao', 'pagina');
 
 // Páginas
-AnalyticsService.trackPageView('pagina', tempoCarregamento);
-AnalyticsService.trackPageLoading('pagina', tempoCarregamento);
+AnalyticsService.trackPageView('pagina');  // Sem tempo de carregamento
+AnalyticsService.trackPageLoading('pagina', tempoCarregamento);  // Com tempo de carregamento
 
 // Cards
 AnalyticsService.trackCardClick('nome_card', 'pagina');

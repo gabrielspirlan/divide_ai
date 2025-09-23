@@ -11,7 +11,7 @@ void main() {
 
     test('trackPageView creates correct payload structure', () async {
       expect(() async {
-        await AnalyticsService.trackPageView('test_page', 1500);
+        await AnalyticsService.trackPageView('test_page');
       }, returnsNormally);
     });
 

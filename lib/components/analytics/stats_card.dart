@@ -4,7 +4,6 @@ import 'package:hugeicons/hugeicons.dart';
 
 class StatsCard extends StatelessWidget {
   final double value;
-
   final StatsTypeEnum type;
 
   const StatsCard({super.key, required this.value, required this.type});
@@ -15,8 +14,8 @@ class StatsCard extends StatelessWidget {
     Color iconColor;
     String labelText;
     String valueText;
-    double valueFontSize = 28;
-    double cardHeight = 160;
+    double valueFontSize = 26;
+    double cardHeight = 170;
 
     switch (type) {
       case StatsTypeEnum.loading:
@@ -24,8 +23,7 @@ class StatsCard extends StatelessWidget {
         iconColor = const Color(0xFF60A5FA);
         labelText = 'Tempo médio';
         valueText = '${value.toInt()}ms';
-        valueFontSize = 24;
-        cardHeight = 170;
+        valueFontSize = 22; // Era 24
         break;
       case StatsTypeEnum.click:
         iconData = HugeIcons.strokeRoundedCursorPointer02;
@@ -55,19 +53,22 @@ class StatsCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(iconData, color: iconColor, size: 32.0),
-
           Text(
             valueText,
+            textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white,
               fontSize: valueFontSize,
               fontWeight: FontWeight.bold,
             ),
           ),
-
-          Text(
-            labelText,
-            style: TextStyle(color: Colors.grey[400], fontSize: 14),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              labelText,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey[400], fontSize: 13),
+            ),
           ),
         ],
       ),

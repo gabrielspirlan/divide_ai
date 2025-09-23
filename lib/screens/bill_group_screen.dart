@@ -34,7 +34,7 @@ class _BillGroupScreenState extends State<BillGroupScreen> {
 
   void _trackPageLoad() {
     final loadTime = DateTime.now().millisecondsSinceEpoch - _pageLoadStartTime;
-    AnalyticsService.trackPageView('bill_group_screen', loadTime);
+    AnalyticsService.trackPageView('bill_group_screen');
     AnalyticsService.trackPageLoading('bill_group_screen', loadTime);
   }
 

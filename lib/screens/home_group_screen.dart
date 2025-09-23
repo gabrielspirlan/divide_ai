@@ -38,7 +38,7 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
 
   void _trackPageLoad() {
     final loadTime = DateTime.now().millisecondsSinceEpoch - _pageLoadStartTime;
-    AnalyticsService.trackPageView('home_group_screen', loadTime);
+    AnalyticsService.trackPageView('home_group_screen');
     AnalyticsService.trackPageLoading('home_group_screen', loadTime);
   }
 

@@ -24,7 +24,7 @@ class InsightsCard extends StatelessWidget {
     switch (type) {
       case StatsTypeEnum.loading:
         title = 'Página mais lenta';
-        subtitle = '$insightTargetName - ${actionCount.toStringAsFixed(1)}s';
+        subtitle = '$insightTargetName - ${(actionCount * 1000).toInt()}ms';
         iconData = Icons.schedule; 
         iconColor = Colors.red[400]!; 
         break;
