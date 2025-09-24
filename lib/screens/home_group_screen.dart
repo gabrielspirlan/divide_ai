@@ -7,6 +7,7 @@ import 'package:divide_ai/models/data/group.dart';
 import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/screens/transactions_group_screen.dart';
+import 'package:divide_ai/screens/settings_screen.dart';
 import 'package:divide_ai/services/analytics_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -44,13 +45,10 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
 
   void _calculateUserExpenses() {
     if (users.isEmpty) return;
-
     final firstUserId = users.first.id;
 
     final userTransactions = transactions
-        .where(
-          (transaction) => transaction.participantIds.contains(firstUserId),
-        )
+        .where((t) => t.participantIds.contains(firstUserId))
         .toList();
 
     double individualTotal = 0.0;
@@ -72,13 +70,10 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
 
   void _calculateUserExpensesNoSetState() {
     if (users.isEmpty) return;
-
     final firstUserId = users.first.id;
 
     final userTransactions = transactions
-        .where(
-          (transaction) => transaction.participantIds.contains(firstUserId),
-        )
+        .where((t) => t.participantIds.contains(firstUserId))
         .toList();
 
     double individualTotal = 0.0;
@@ -98,12 +93,9 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
 
   void _calculateUserGroups() {
     if (users.isEmpty) return;
-
     final firstUserId = users.first.id;
 
-    final userGroups = groups.where((group) =>
-      group.participantIds.contains(firstUserId)
-    ).length;
+    final userGroups = groups.where((g) => g.participantIds.contains(firstUserId)).length;
 
     setState(() {
       userGroupsCount = userGroups;
@@ -112,12 +104,9 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
 
   void _calculateUserGroupsNoSetState() {
     if (users.isEmpty) return;
-
     final firstUserId = users.first.id;
 
-    userGroupsCount = groups.where((group) =>
-      group.participantIds.contains(firstUserId)
-    ).length;
+    userGroupsCount = groups.where((g) => g.participantIds.contains(firstUserId)).length;
   }
 
   void _reloadState() {
@@ -136,12 +125,23 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
         "Olá ${users.first.name.split(' ').first}",
         description: "Gerencie seus grupos de despesas",
         icon: HugeIcons.strokeRoundedSettings01,
+        tapIcon: () async {
+          await Future.delayed(const Duration(milliseconds: 300));
+          if (context.mounted) {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const SettingsScreen(),
+              ),
+            );
+            _reloadState();
+          }
+        },
       ),
-
       body: ListView(
         children: [
           Padding(
-            padding: EdgeInsets.fromLTRB(5, 10, 5, 5),
+            padding: const EdgeInsets.fromLTRB(5, 10, 5, 5),
             child: Column(
               spacing: 5,
               children: [
@@ -150,9 +150,7 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
                     Expanded(
                       child: SpecialInfoCard(
                         "Total Geral",
-                        value: formatter.format(
-                          individualExpenses + sharedExpenses,
-                        ),
+                        value: formatter.format(individualExpenses + sharedExpenses),
                         description: "$userGroupsCount grupos ativos",
                       ),
                     ),
@@ -181,15 +179,14 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
               ],
             ),
           ),
-
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
             child: Padding(
-              padding: EdgeInsets.fromLTRB(10, 10, 10, 5),
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 5),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  const Text(
                     "Meus Grupos",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
                   ),
@@ -203,22 +200,18 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
               ),
             ),
           ),
-
           ...groups.map((group) {
             return GroupCard(
               group,
               onTap: () async {
                 await Future.delayed(const Duration(milliseconds: 300));
-
                 if (context.mounted) {
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          TransactionsGroupScreen(groupId: group.id),
+                      builder: (context) => TransactionsGroupScreen(groupId: group.id),
                     ),
                   );
-
                   _reloadState();
                 }
               },
