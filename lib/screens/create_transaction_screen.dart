@@ -138,15 +138,16 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
 
       body: Padding(
         padding: EdgeInsets.all(10),
-        child: Column(
-          spacing: 12,
+        child: ListView(
           children: [
+            const SizedBox(height: 20),
             CardInput(
               "Nome da despesa",
               hint: "Ex: Coca-Cola 2 litros",
               icon: HugeIcons.strokeRoundedNoteEdit,
               controller: _nameController,
             ),
+            const SizedBox(height: 20),
             CardInput(
               "Valor",
               hint: "R\$ 0.00",
@@ -154,25 +155,26 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
               keyboardType: TextInputType.number,
               controller: _valueController,
             ),
+            const SizedBox(height: 20),
             SelectMembersGroup(
               participants: _groupParticipants,
               mainUser: _currentUser,
               canDeselectMainUser: true,
               onSelectionChanged: _onParticipantsChanged,
             ),
+            const SizedBox(height: 20),
+            SizedBox(
+              width: double.infinity,
+              child: Button(
+                text: "Adicionar Despesa",
+                onPressed: _addTransaction,
+                size: ButtonSize.large,
+              ),
+            ),
+              const SizedBox(height: 10),
           ],
         ),
       ),
-
-      floatingActionButton: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: Button(
-          text: "Adicionar Despesa",
-          onPressed: _addTransaction,
-          size: ButtonSize.large,
-        ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 
