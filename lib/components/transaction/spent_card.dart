@@ -40,11 +40,18 @@ class SpentCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Icon(icon, color: color, size: 14),
-                Text(title, style: TextStyle(color: color, fontSize: 14)),
+                Text(
+                  title,
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                  style: TextStyle(color: color, fontSize: 14),
+                ),
               ],
             ),
             Text(
               formatter.format(spent.value),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
             ),
           ],

@@ -8,6 +8,7 @@ import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/screens/transactions_group_screen.dart';
 import 'package:divide_ai/screens/settings_screen.dart';
+import 'package:divide_ai/screens/create_group_screen.dart';
 import 'package:divide_ai/services/analytics_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -46,14 +47,9 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
   void _calculateUserExpenses() {
     if (users.isEmpty) return;
     final firstUserId = users.first.id;
-
-    final userTransactions = transactions
-        .where((t) => t.participantIds.contains(firstUserId))
-        .toList();
-
+    final userTransactions = transactions.where((t) => t.participantIds.contains(firstUserId)).toList();
     double individualTotal = 0.0;
     double sharedTotal = 0.0;
-
     for (final transaction in userTransactions) {
       if (transaction.participantIds.length == 1) {
         individualTotal += transaction.value;
@@ -61,7 +57,6 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
         sharedTotal += transaction.value / transaction.participantIds.length;
       }
     }
-
     setState(() {
       individualExpenses = individualTotal;
       sharedExpenses = sharedTotal;
@@ -71,14 +66,9 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
   void _calculateUserExpensesNoSetState() {
     if (users.isEmpty) return;
     final firstUserId = users.first.id;
-
-    final userTransactions = transactions
-        .where((t) => t.participantIds.contains(firstUserId))
-        .toList();
-
+    final userTransactions = transactions.where((t) => t.participantIds.contains(firstUserId)).toList();
     double individualTotal = 0.0;
     double sharedTotal = 0.0;
-
     for (final transaction in userTransactions) {
       if (transaction.participantIds.length == 1) {
         individualTotal += transaction.value;
@@ -86,7 +76,6 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
         sharedTotal += transaction.value / transaction.participantIds.length;
       }
     }
-
     individualExpenses = individualTotal;
     sharedExpenses = sharedTotal;
   }
@@ -94,9 +83,7 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
   void _calculateUserGroups() {
     if (users.isEmpty) return;
     final firstUserId = users.first.id;
-
     final userGroups = groups.where((g) => g.participantIds.contains(firstUserId)).length;
-
     setState(() {
       userGroupsCount = userGroups;
     });
@@ -105,7 +92,6 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
   void _calculateUserGroupsNoSetState() {
     if (users.isEmpty) return;
     final firstUserId = users.first.id;
-
     userGroupsCount = groups.where((g) => g.participantIds.contains(firstUserId)).length;
   }
 
@@ -119,7 +105,6 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
   @override
   Widget build(BuildContext context) {
     final formatter = NumberFormat.simpleCurrency(locale: 'pt_BR');
-
     return Scaffold(
       appBar: CustomAppBar(
         "Olá ${users.first.name.split(' ').first}",
@@ -193,7 +178,18 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
                   Button(
                     text: "Novo Grupo",
                     icon: Icons.add,
-                    onPressed: () => print("Novo Grupo"),
+                    onPressed: () async {
+                      await Future.delayed(const Duration(milliseconds: 300));
+                      if (context.mounted) {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CreateGroupScreen(),
+                          ),
+                        );
+                        _reloadState();
+                      }
+                    },
                     size: ButtonSize.small,
                   ),
                 ],

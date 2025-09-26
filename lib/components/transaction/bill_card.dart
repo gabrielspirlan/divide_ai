@@ -44,6 +44,8 @@ class BillCard extends StatelessWidget {
                     children: [
                       Text(
                         formatter.format(_totalValue),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.onPrimaryFixed,
                           fontWeight: FontWeight.w900,

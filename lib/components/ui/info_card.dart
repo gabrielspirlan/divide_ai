@@ -87,6 +87,9 @@ class InfoCard extends StatelessWidget {
                   const SizedBox(height: 6),
                   Text(
                     title,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       color: textColor,
                       fontSize: _getFontSizeTitle(),
@@ -96,6 +99,9 @@ class InfoCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     value,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       color: boldTextColor,
                       fontSize: _getFontSizeValue(),

@@ -25,13 +25,13 @@ List<Group> groups = [
     description: "Lanches no Bahia Lanches",
     participantIds: [1, 2, 3, 4],
     value: 260.00,
-    backgroundIconColor: Colors.blue,
+    backgroundIconColor: Color(0xFF1447e6),
   ),
   Group(
     "Espetinho",
     description: "Espetinho da Fatec",
     participantIds: [1, 2, 3, 4],
     value: 80.00,
-    backgroundIconColor: Colors.red,
+    backgroundIconColor: Color(0xFF10b981),
   ),
 ];
