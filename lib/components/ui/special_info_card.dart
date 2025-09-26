@@ -42,16 +42,31 @@ class SpecialInfoCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: 4,
           children: [
-            Text(title, style: TextStyle(color: Colors.white, fontSize: 14)),
+            Text(
+              title,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white, fontSize: 14),
+            ),
             Text(
               value,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,
                 fontWeight: FontWeight.w900,
               ),
             ),
-            Text(description, style: TextStyle(color: Colors.white, fontSize: 14)),
+            Text(
+              description,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.white, fontSize: 14),
+            ),
           ],
         ),
       ),

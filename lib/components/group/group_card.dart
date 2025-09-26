@@ -64,10 +64,12 @@ class GroupCard extends StatelessWidget {
                         Colors.white,
                         group.backgroundIconColor,
                       ),
-                      GroupInfos(
-                        group.name,
-                        group.description,
-                        participantsShow,
+                      Expanded(
+                        child: GroupInfos(
+                          group.name,
+                          group.description,
+                          participantsShow,
+                        ),
                       ),
                     ],
                   ),
@@ -154,6 +156,8 @@ class GroupPriceItem extends StatelessWidget {
       children: [
         Text(
           formatter.format(value),
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
           style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
         ),
         Text(

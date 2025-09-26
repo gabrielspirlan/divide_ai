@@ -3,6 +3,7 @@ import 'package:divide_ai/components/ui/button.dart';
 import 'package:divide_ai/components/ui/card_input.dart';
 import 'package:divide_ai/components/ui/custom_app_bar.dart';
 import 'package:divide_ai/models/data/user.dart';
+import 'package:divide_ai/models/data/group.dart';
 import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/services/analytics_service.dart';
 import 'package:flutter/material.dart';
@@ -23,14 +24,42 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
   final TextEditingController _valueController = TextEditingController();
   Set<int> _selectedParticipantIndexes = {0};
   late final int _pageLoadStartTime;
+  late List<User> _groupParticipants;
+  late User _currentUser;
 
   @override
   void initState() {
     super.initState();
     _pageLoadStartTime = DateTime.now().millisecondsSinceEpoch;
+
+    // Filtrar participantes do grupo específico
+    _initializeGroupParticipants();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _trackPageLoad();
     });
+  }
+
+  void _initializeGroupParticipants() {
+    // Encontrar o grupo específico
+    final group = groups.firstWhere((g) => g.id == widget.groupId);
+
+    // Filtrar usuários que pertencem ao grupo
+    _groupParticipants = group.participantIds
+        .map((id) => users.firstWhere((u) => u.id == id))
+        .toList();
+
+    // Definir o usuário atual (primeiro da lista de usuários globais)
+    _currentUser = users.first;
+
+    // Se o usuário atual não estiver no grupo, adicionar ele como primeiro
+    if (!_groupParticipants.any((u) => u.id == _currentUser.id)) {
+      _groupParticipants.insert(0, _currentUser);
+    } else {
+      // Reorganizar para que o usuário atual seja o primeiro
+      _groupParticipants.removeWhere((u) => u.id == _currentUser.id);
+      _groupParticipants.insert(0, _currentUser);
+    }
   }
 
   void _trackPageLoad() {
@@ -82,7 +111,7 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
     }
 
     List<int> participantIds = _selectedParticipantIndexes
-        .map((index) => users[index].id)
+        .map((index) => _groupParticipants[index].id)
         .toList();
 
     Transaction newTransaction = Transaction(
@@ -126,8 +155,8 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
               controller: _valueController,
             ),
             SelectMembersGroup(
-              participants: users,
-              mainUser: users.first,
+              participants: _groupParticipants,
+              mainUser: _currentUser,
               canDeselectMainUser: true,
               onSelectionChanged: _onParticipantsChanged,
             ),
