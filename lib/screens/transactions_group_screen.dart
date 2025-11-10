@@ -8,6 +8,7 @@ import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/screens/create_transaction_screen.dart';
 import 'package:divide_ai/screens/bill_group_screen.dart';
 import 'package:divide_ai/services/analytics_service.dart';
+import 'package:divide_ai/services/transaction_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:intl/intl.dart';
@@ -24,14 +25,49 @@ class TransactionsGroupScreen extends StatefulWidget {
 
 class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
   late final int _pageLoadStartTime;
+  
+  // ESTADO E SERVIÇO
+  final TransactionService _transactionService = TransactionService();
+  List<Transaction> _groupTransactions = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _pageLoadStartTime = DateTime.now().millisecondsSinceEpoch;
+    
+    _fetchTransactions(); 
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _trackPageLoad();
     });
+  }
+
+  Future<void> _fetchTransactions() async {
+    try {
+      final transactions = await _transactionService.getGroupTransactions(widget.groupId);
+      if (mounted) {
+        setState(() {
+          _groupTransactions = transactions;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Erro ao buscar transações do grupo: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _reloadState() {
+    setState(() {
+      _isLoading = true;
+      _groupTransactions = [];
+    });
+    _fetchTransactions();
   }
 
   void _trackPageLoad() {
@@ -59,9 +95,7 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
   Widget build(BuildContext context) {
     final group = groups.firstWhere((g) => g.id == widget.groupId);
 
-    final groupTransactions = transactions
-        .where((t) => t.groupId == widget.groupId)
-        .toList();
+    final groupTransactions = _groupTransactions;
 
     double individualTotal = 0.0;
     double sharedTotal = 0.0;
@@ -75,8 +109,6 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
       }
     }
 
-
-
     final formatter = NumberFormat.simpleCurrency(locale: 'pt_BR');
 
     return Scaffold(
@@ -87,12 +119,14 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
         tapIcon: _navigateToBillScreen,
       ),
 
-      body: ListView(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator()) 
+          : ListView(
         children: [
           Padding(
             padding: EdgeInsets.fromLTRB(5, 10, 5, 5),
             child: Column(
-              spacing: 5,
+              // spacing: 5,
               children: [
                 Row(
                   children: [
@@ -154,8 +188,7 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
                     );
 
                     if (mounted && result == true) {
-                      setState(() {
-                      });
+                      _reloadState(); 
                     }
                   },
                   size: ButtonSize.small,
@@ -169,7 +202,7 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
               height: 300,
               child: Center(
                 child: Column(
-                  spacing: 16,
+                  // spacing: 16,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(
@@ -186,8 +219,31 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
               ),
             )
           else
+            // INTEGRAÇÃO DA NAVEGAÇÃO DE EDIÇÃO AQUI:
             ...groupTransactions.map((transaction) {
-              return card.TransactionCard(transaction);
+              return InkWell(
+                onTap: () async {
+                  // Rastreamento de Analytics (Opcional, mas recomendado)
+                  AnalyticsService.trackEvent(
+                    elementId: 'edit_transaction_${transaction.id}',
+                    eventType: 'CLICK',
+                    page: 'transactions_group_screen',
+                  );
+
+                  final result = await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CreateTransactionScreen(
+                        groupId: widget.groupId,
+                        transactionId: transaction.id, // PASSANDO O ID PARA EDIÇÃO
+                      ),
+                    ),
+                  );
+                  if (mounted && result == true) {
+                    _reloadState();
+                  }
+                },
+                child: card.TransactionCard(transaction),
+              );
             }),
         ],
       ),

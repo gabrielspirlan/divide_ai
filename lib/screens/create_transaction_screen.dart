@@ -5,14 +5,21 @@ import 'package:divide_ai/components/ui/custom_app_bar.dart';
 import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/data/group.dart';
 import 'package:divide_ai/models/data/transaction.dart';
+import 'package:divide_ai/models/data/transaction_request.dart';
 import 'package:divide_ai/services/analytics_service.dart';
+import 'package:divide_ai/services/transaction_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 class CreateTransactionScreen extends StatefulWidget {
   final int groupId;
+  final int? transactionId; // NOVO: ID da transação se for edição
 
-  const CreateTransactionScreen({super.key, required this.groupId});
+  const CreateTransactionScreen({
+    super.key,
+    required this.groupId,
+    this.transactionId, // NOVO: Campo opcional
+  });
 
   @override
   State<CreateTransactionScreen> createState() =>
@@ -22,42 +29,95 @@ class CreateTransactionScreen extends StatefulWidget {
 class CreateTransactionScreenState extends State<CreateTransactionScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _valueController = TextEditingController();
-  Set<int> _selectedParticipantIndexes = {0};
+  Set<int> _selectedParticipantIndexes = {}; // Inicializado vazio para controle
   late final int _pageLoadStartTime;
   late List<User> _groupParticipants;
   late User _currentUser;
+
+  // NOVOS ESTADOS
+  bool _isEditing = false;
+  bool _isLoadingData = false;
+  Transaction? _currentTransaction;
+
+  final TransactionService _transactionService = TransactionService();
 
   @override
   void initState() {
     super.initState();
     _pageLoadStartTime = DateTime.now().millisecondsSinceEpoch;
 
-    // Filtrar participantes do grupo específico
+    _isEditing = widget.transactionId != null;
+
     _initializeGroupParticipants();
+
+    if (_isEditing) {
+      _loadTransactionData(); // CARREGA DADOS SE FOR EDIÇÃO
+    } else {
+      // Configurações padrão para criação: o usuário principal é o primeiro selecionado
+      _selectedParticipantIndexes.add(0);
+    }
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _trackPageLoad();
     });
   }
 
+  // MÉTODO PARA CARREGAR DADOS DE EDIÇÃO
+  Future<void> _loadTransactionData() async {
+    if (widget.transactionId == null) return;
+    
+    setState(() {
+      _isLoadingData = true;
+    });
+
+    try {
+      final transaction = await _transactionService.getTransactionById(widget.transactionId!);
+      
+      if (mounted) {
+        // Pré-preenche campos
+        _nameController.text = transaction.description;
+        // Formata o valor com vírgula para exibir corretamente no input
+        _valueController.text = transaction.value.toString().replaceAll('.', ',');
+        
+        // Mapeia IDs de participantes da transação para índices na lista local
+        Set<int> initialIndexes = transaction.participantIds
+            .map((id) => _groupParticipants.indexWhere((u) => u.id == id))
+            .where((index) => index != -1)
+            .toSet();
+
+        setState(() {
+          _currentTransaction = transaction;
+          _selectedParticipantIndexes = initialIndexes;
+          _isLoadingData = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Erro ao carregar transação: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingData = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Falha ao carregar dados para edição.")),
+        );
+      }
+    }
+  }
+
   void _initializeGroupParticipants() {
-    // Encontrar o grupo específico
     final group = groups.firstWhere((g) => g.id == widget.groupId);
 
-    // Filtrar usuários que pertencem ao grupo
     _groupParticipants = group.participantIds
         .map((id) => users.firstWhere((u) => u.id == id))
         .toList();
 
-    // Definir o usuário atual (primeiro da lista de usuários globais)
     _currentUser = users.first;
 
-    // Se o usuário atual não estiver no grupo, adicionar ele como primeiro
-    if (!_groupParticipants.any((u) => u.id == _currentUser.id)) {
+    // Garante que o usuário atual esteja na posição 0
+    if (_groupParticipants.any((u) => u.id == _currentUser.id)) {
+      _groupParticipants.removeWhere((u) => u.id == _currentUser.id);
       _groupParticipants.insert(0, _currentUser);
     } else {
-      // Reorganizar para que o usuário atual seja o primeiro
-      _groupParticipants.removeWhere((u) => u.id == _currentUser.id);
       _groupParticipants.insert(0, _currentUser);
     }
   }
@@ -74,39 +134,31 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
     });
   }
 
-  void _addTransaction() async {
-    await Future.delayed(Duration(milliseconds: 200));
+  // MÉTODO UNIFICADO: LIDA COM POST (CRIAÇÃO) E PUT (EDIÇÃO)
+  void _saveTransaction() async {
+    // 1. Validações
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(_isEditing ? "Salvando alterações..." : "Adicionando despesa...")),
+      );
 
     if (!mounted) return;
 
     if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Por favor, insira o nome da despesa")),
-      );
-      return;
-    }
-
-    if (_valueController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Por favor, insira o valor da despesa")),
-      );
-      return;
-    }
-
-    if (_selectedParticipantIndexes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Por favor, selecione pelo menos um participante"),
-        ),
-      );
-      return;
+       ScaffoldMessenger.of(context).hideCurrentSnackBar();
+       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Por favor, insira o nome da despesa")),);
+       return;
     }
 
     double? value = double.tryParse(_valueController.text.replaceAll(',', '.'));
     if (value == null || value <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Por favor, insira um valor válido")),
-      );
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Por favor, insira um valor válido")),);
+      return;
+    }
+
+    if (_selectedParticipantIndexes.isEmpty) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Selecione pelo menos um participante")),);
       return;
     }
 
@@ -114,26 +166,65 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
         .map((index) => _groupParticipants[index].id)
         .toList();
 
-    Transaction newTransaction = Transaction(
-      _nameController.text.trim(),
+    // 2. Criar objeto de Requisição
+    final transactionRequest = TransactionRequest(
+      description: _nameController.text.trim(),
       value: value,
       participantIds: participantIds,
       groupId: widget.groupId,
     );
 
-    transactions.add(newTransaction);
+    // 3. Chamada à API (POST ou PUT)
+    try {
+      if (_isEditing && widget.transactionId != null) {
+        // EDIÇÃO (PUT)
+        await _transactionService.updateTransaction(
+          widget.transactionId!,
+          transactionRequest,
+        );
+      } else {
+        // CRIAÇÃO (POST)
+        await _transactionService.createTransaction(transactionRequest);
+      }
 
-    if (mounted) {
-      Navigator.of(context).pop(true);
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        // Retorna true para sinalizar à tela anterior que houve mudança
+        Navigator.of(context).pop(true); 
+      }
+    } catch (e) {
+      debugPrint('Erro ao salvar transação via API: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(_isEditing ? "Falha ao salvar. Tente novamente." : "Falha ao adicionar despesa."),
+          ),
+        );
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // 4. Gerenciamento do Título e Botão
+    final appBarTitle = _isEditing ? "Editar Despesa" : "Nova Despesa";
+    final appBarDescription = _isEditing ? "Atualize as informações da transação" : "Insira as informações da sua nova despesa";
+    final buttonText = _isEditing ? "Salvar Alterações" : "Adicionar Despesa";
+
+    // 5. Tela de Carregamento para Edição
+    if (_isEditing && _isLoadingData) {
+      return Scaffold(
+        appBar: CustomAppBar(appBarTitle, description: appBarDescription),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    
+    // 6. Layout principal
     return Scaffold(
       appBar: CustomAppBar(
-        "Nova despesa",
-        description: "Insira as informações da sua nova despesa",
+        appBarTitle,
+        description: appBarDescription,
       ),
 
       body: Padding(
@@ -161,13 +252,15 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
               mainUser: _currentUser,
               canDeselectMainUser: true,
               onSelectionChanged: _onParticipantsChanged,
+              // INICIALIZA A SELEÇÃO SE JÁ HOUVER DADOS CARREGADOS
+              initialSelectedIndexes: _selectedParticipantIndexes, 
             ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: Button(
-                text: "Adicionar Despesa",
-                onPressed: _addTransaction,
+                text: buttonText,
+                onPressed: _saveTransaction, // CHAMA O MÉTODO UNIFICADO
                 size: ButtonSize.large,
               ),
             ),
