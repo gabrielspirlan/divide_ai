@@ -4,8 +4,9 @@ import 'package:divide_ai/components/ui/card_input.dart';
 import 'package:divide_ai/components/ui/custom_app_bar.dart';
 import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/data/group.dart';
-import 'package:divide_ai/models/data/transaction.dart';
+import 'package:divide_ai/models/data/transaction_request.dart';
 import 'package:divide_ai/services/analytics_service.dart';
+import 'package:divide_ai/services/transaction_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
@@ -26,6 +27,9 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
   late final int _pageLoadStartTime;
   late List<User> _groupParticipants;
   late User _currentUser;
+
+  // NOVO SERVIÇO
+  final TransactionService _transactionService = TransactionService();
 
   @override
   void initState() {
@@ -75,25 +79,27 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
   }
 
   void _addTransaction() async {
-    await Future.delayed(Duration(milliseconds: 200));
+    // 1. Mostrar loading e fazer validações
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Adicionando despesa...")),
+      );
 
     if (!mounted) return;
 
     if (_nameController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Por favor, insira o nome da despesa")),
-      );
-      return;
+       ScaffoldMessenger.of(context).hideCurrentSnackBar();
+       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Por favor, insira o nome da despesa")),);
+       return;
     }
 
     if (_valueController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Por favor, insira o valor da despesa")),
-      );
-      return;
+       ScaffoldMessenger.of(context).hideCurrentSnackBar();
+       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Por favor, insira o valor da despesa")),);
+       return;
     }
 
     if (_selectedParticipantIndexes.isEmpty) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Por favor, selecione pelo menos um participante"),
@@ -104,9 +110,8 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
 
     double? value = double.tryParse(_valueController.text.replaceAll(',', '.'));
     if (value == null || value <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Por favor, insira um valor válido")),
-      );
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Por favor, insira um valor válido")),);
       return;
     }
 
@@ -114,17 +119,34 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
         .map((index) => _groupParticipants[index].id)
         .toList();
 
-    Transaction newTransaction = Transaction(
-      _nameController.text.trim(),
+    // 2. Criar objeto de Requisição
+    final transactionRequest = TransactionRequest(
+      description: _nameController.text.trim(),
       value: value,
       participantIds: participantIds,
       groupId: widget.groupId,
     );
+    
+    // 3. Chamar a API
+    try {
+      await _transactionService.createTransaction(transactionRequest);
 
-    transactions.add(newTransaction);
+      // Código de inserção local removido
 
-    if (mounted) {
-      Navigator.of(context).pop(true);
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        Navigator.of(context).pop(true); // Retorna true para sinalizar sucesso
+      }
+    } catch (e) {
+      debugPrint('Erro ao criar transação via API: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Falha ao adicionar despesa. Verifique a conexão."),
+          ),
+        );
+      }
     }
   }
 
