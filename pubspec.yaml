@@ -38,6 +38,7 @@ dependencies:
   font_awesome_flutter: ^10.9.1
   hugeicons: ^0.0.1
   shared_preferences: ^2.2.2 
+  flutter_dotenv: ^6.0.0
 
 dev_dependencies:
   flutter_test:

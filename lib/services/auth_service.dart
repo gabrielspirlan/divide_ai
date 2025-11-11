@@ -3,9 +3,10 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:divide_ai/models/auth_response.dart';
 import 'package:divide_ai/services/session_service.dart';
+import 'package:divide_ai/config/app_config.dart';
 
 class AuthService {
-  static const String _baseUrl = 'https://divide-ai-api-i8en.onrender.com';
+  static final String _baseUrl = AppConfig.baseUrl; 
   final Map<String, String> _headers = {'Content-Type': 'application/json'};
 
   // POST /auth/login
@@ -17,6 +18,8 @@ class AuthService {
         'password': password,
       });
 
+      // Nota: Usamos http.post diretamente pois esta rota NÃO pode usar o Token
+      // (ele ainda não existe) e não precisa da lógica de 401 do HttpRequest.
       final response = await http.post(
         url,
         headers: _headers,
@@ -32,7 +35,6 @@ class AuthService {
         
         return authResponse;
       } else {
-        // Tratar erros específicos da API se houver (ex: 401 Unauthorized)
         throw Exception('Falha no login: Credenciais inválidas ou erro do servidor (${response.statusCode})');
       }
     } catch (e) {

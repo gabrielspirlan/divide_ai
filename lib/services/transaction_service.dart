@@ -2,23 +2,23 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/models/data/transaction_request.dart';
+import 'package:divide_ai/config/app_config.dart';
+import 'package:divide_ai/services/http_request.dart';
 import 'package:flutter/material.dart';
 
 class TransactionService {
-  static const String _baseUrl = 'https://divide-ai-api-i8en.onrender.com';
-  final Map<String, String> _headers = {'Content-Type': 'application/json'};
+  static final String _baseUrl = AppConfig.baseUrl;
 
-  // 1. GET /transactions/group/{groupId} - Lida com a resposta paginada
+  // 1. GET /transactions/group/{groupId}
   Future<List<Transaction>> getGroupTransactions(int groupId) async {
     try {
-      // Adicionar parâmetros de paginação se necessário, aqui usando apenas o groupId
-      final url = Uri.parse('$_baseUrl/transactions/group/$groupId'); 
-      final response = await http.get(url, headers: _headers);
+      final url = Uri.parse('$_baseUrl/transactions/group/$groupId');
+      
+      // USANDO CLIENTE AUTENTICADO
+      final response = await authenticatedHttpClient.get(url); 
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
-        
-        // A API retorna um objeto paginado, o payload de transações está em "content"
         final List<dynamic> jsonList = responseData['content'] ?? []; 
         
         return jsonList.map((json) => Transaction.fromJson(json)).toList();
@@ -36,7 +36,9 @@ class TransactionService {
   Future<Transaction> getTransactionById(int id) async {
     try {
       final url = Uri.parse('$_baseUrl/transactions/$id');
-      final response = await http.get(url, headers: _headers);
+      
+      // USANDO CLIENTE AUTENTICADO
+      final response = await authenticatedHttpClient.get(url);
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> json = jsonDecode(response.body);
@@ -56,13 +58,13 @@ class TransactionService {
       TransactionRequest transactionRequest) async {
     try {
       final url = Uri.parse('$_baseUrl/transactions');
-      final response = await http.post(
+      
+      // USANDO CLIENTE AUTENTICADO
+      final response = await authenticatedHttpClient.post(
         url,
-        headers: _headers,
         body: jsonEncode(transactionRequest.toJson()),
       );
 
-      // O print de sucesso da API mostra um status 200 (OK), não 201 (Created)
       if (response.statusCode == 200 || response.statusCode == 201) { 
         final Map<String, dynamic> json = jsonDecode(response.body);
         return Transaction.fromJson(json);
@@ -76,14 +78,15 @@ class TransactionService {
     }
   }
 
-  // 4. PUT /transactions/{id} - Agora usa o ID na URL
+  // 4. PUT /transactions/{id}
   Future<Transaction> updateTransaction(
       int id, TransactionRequest transactionRequest) async {
     try {
       final url = Uri.parse('$_baseUrl/transactions/$id');
-      final response = await http.put(
+      
+      // USANDO CLIENTE AUTENTICADO
+      final response = await authenticatedHttpClient.put(
         url,
-        headers: _headers,
         body: jsonEncode(transactionRequest.toJson()),
       );
 
