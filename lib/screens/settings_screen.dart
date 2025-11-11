@@ -4,6 +4,8 @@ import 'package:divide_ai/components/users/user_card.dart';
 import 'package:divide_ai/components/ui/custom_app_bar.dart';
 import 'package:divide_ai/screens/analytics_screen.dart';
 import 'package:divide_ai/services/analytics_service.dart';
+import 'package:divide_ai/services/session_service.dart';
+import 'package:divide_ai/screens/login_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -26,15 +28,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   void _trackPageLoad() {
     final loadTime = DateTime.now().millisecondsSinceEpoch - _pageLoadStartTime;
-    AnalyticsService.trackPageView('settings_screen'); 
-    AnalyticsService.trackPageLoading('settings_screen', loadTime); 
+    AnalyticsService.trackPageView('settings_screen');
+    AnalyticsService.trackPageLoading('settings_screen', loadTime);
   }
 
   @override
   Widget build(BuildContext context) {
     final user = users.first;
     final theme = Theme.of(context);
-    final cardBackground = theme.colorScheme.onBackground; 
+    final cardBackground = theme.colorScheme.onBackground;
     final iconColor = theme.colorScheme.onSurfaceVariant;
 
     return Scaffold(
@@ -114,6 +116,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           MaterialPageRoute(
                             builder: (context) => const AnalyticsScreen(),
                           ),
+                        );
+                      }
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // NOVA SEÇÃO: CONTA / LOGOUT
+            Text(
+              "Conta",
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: theme.colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            Card(
+              color: cardBackground,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Column(
+                children: [
+                  _SettingsListTile(
+                    icon: Icons.logout,
+                    title: "Sair da Conta",
+                    subtitle: "Encerra a sessão atual",
+                    iconColor: Colors.red,
+                    elementId: 'logout_tile',
+                    pageName: 'settings_screen',
+                    onTap: () async {
+                      await SessionService.clearSession(); // limpa sessão
+                      if (context.mounted) {
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                          (route) => false, // remove todas as telas anteriores
                         );
                       }
                     },
