@@ -26,7 +26,7 @@ class TransactionsGroupScreen extends StatefulWidget {
 class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
   late final int _pageLoadStartTime;
   
-  // NOVO ESTADO E SERVIÇO
+  // ESTADO E SERVIÇO
   final TransactionService _transactionService = TransactionService();
   List<Transaction> _groupTransactions = [];
   bool _isLoading = true;
@@ -36,14 +36,13 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
     super.initState();
     _pageLoadStartTime = DateTime.now().millisecondsSinceEpoch;
     
-    _fetchTransactions(); // INICIA A BUSCA NA API
+    _fetchTransactions(); 
     
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _trackPageLoad();
     });
   }
 
-  // NOVO MÉTODO: BUSCAR DADOS DA API
   Future<void> _fetchTransactions() async {
     try {
       final transactions = await _transactionService.getGroupTransactions(widget.groupId);
@@ -63,7 +62,6 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
     }
   }
 
-  // MÉTODO PARA RECARREGAR O ESTADO
   void _reloadState() {
     setState(() {
       _isLoading = true;
@@ -97,7 +95,7 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
   Widget build(BuildContext context) {
     final group = groups.firstWhere((g) => g.id == widget.groupId);
 
-    final groupTransactions = _groupTransactions; // USANDO DADOS DO ESTADO
+    final groupTransactions = _groupTransactions;
 
     double individualTotal = 0.0;
     double sharedTotal = 0.0;
@@ -122,13 +120,13 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
       ),
 
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator()) // INDICADOR DE CARREGAMENTO
+          ? const Center(child: CircularProgressIndicator()) 
           : ListView(
         children: [
           Padding(
             padding: EdgeInsets.fromLTRB(5, 10, 5, 5),
             child: Column(
-              // spacing: 5, // assumindo a extensão de Column com spacing
+              // spacing: 5,
               children: [
                 Row(
                   children: [
@@ -190,7 +188,7 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
                     );
 
                     if (mounted && result == true) {
-                      _reloadState(); // CHAMA O RECARREGAMENTO VIA API
+                      _reloadState(); 
                     }
                   },
                   size: ButtonSize.small,
@@ -221,8 +219,31 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
               ),
             )
           else
+            // INTEGRAÇÃO DA NAVEGAÇÃO DE EDIÇÃO AQUI:
             ...groupTransactions.map((transaction) {
-              return card.TransactionCard(transaction);
+              return InkWell(
+                onTap: () async {
+                  // Rastreamento de Analytics (Opcional, mas recomendado)
+                  AnalyticsService.trackEvent(
+                    elementId: 'edit_transaction_${transaction.id}',
+                    eventType: 'CLICK',
+                    page: 'transactions_group_screen',
+                  );
+
+                  final result = await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => CreateTransactionScreen(
+                        groupId: widget.groupId,
+                        transactionId: transaction.id, // PASSANDO O ID PARA EDIÇÃO
+                      ),
+                    ),
+                  );
+                  if (mounted && result == true) {
+                    _reloadState();
+                  }
+                },
+                child: card.TransactionCard(transaction),
+              );
             }),
         ],
       ),
