@@ -1,7 +1,9 @@
 import 'package:divide_ai/components/ui/button.dart';
+import 'package:divide_ai/components/ui/input.dart';
 import 'package:divide_ai/screens/home_group_screen.dart';
 import 'package:divide_ai/services/auth_service.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -70,11 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
-    // Cores conforme pedido
-    final cardBorderColor = const Color(0xFF3A3A3A); // borda acinzentada do card
-    final fieldFocusBorderColor = const Color(0xFFE6E6E6); // borda clara ao focar (não azul)
-    final fieldFillColor = theme.colorScheme.onBackground.withOpacity(0.03);
+    final cardBorderColor = const Color(0xFF3A3A3A);
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
@@ -104,81 +102,31 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Email label + campo
-                          Text(
+                          // Campo de Email usando o componente Input
+                          Input(
                             'Email',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: theme.colorScheme.onSurface,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
+                            hint: 'seu@email.com',
+                            icon: FontAwesomeIcons.solidEnvelope,
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
-                            style: TextStyle(color: theme.colorScheme.onSurface),
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.email_outlined, color: theme.colorScheme.onSurface.withOpacity(0.7)),
-                              hintText: "seu@email.com",
-                              hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.45)),
-                              filled: true,
-                              fillColor: fieldFillColor,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: cardBorderColor.withOpacity(0.25)),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: cardBorderColor.withOpacity(0.25), width: 1.2),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: fieldFocusBorderColor, width: 1.6),
-                              ),
-                            ),
+                            size: InputSize.large,
                           ),
 
                           const SizedBox(height: 18),
 
-                          // Senha label + campo
-                          Text(
+                          // Campo de Senha usando o componente Input
+                          Input(
                             'Senha',
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: theme.colorScheme.onSurface,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextField(
+                            hint: '********',
+                            icon: FontAwesomeIcons.lock,
                             controller: _passwordController,
                             obscureText: true,
-                            style: TextStyle(color: theme.colorScheme.onSurface),
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.lock_outline, color: theme.colorScheme.onSurface.withOpacity(0.7)),
-                              hintText: "********",
-                              hintStyle: TextStyle(color: theme.colorScheme.onSurface.withOpacity(0.45)),
-                              filled: true,
-                              fillColor: fieldFillColor,
-                              contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: cardBorderColor.withOpacity(0.25)),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: cardBorderColor.withOpacity(0.25), width: 1.2),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                                borderSide: BorderSide(color: fieldFocusBorderColor, width: 1.6),
-                              ),
-                            ),
+                            size: InputSize.large,
                           ),
 
                           const SizedBox(height: 24),
 
-                          // Botão Entrar (usa seu componente Button existente)
+                          // Botão Entrar
                           _isLoading
                               ? const Center(child: CircularProgressIndicator())
                               : Button(
@@ -189,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           const SizedBox(height: 14),
 
-                          // Link Cadastre-se dentro do card
+                          // Link Cadastre-se
                           Center(
                             child: TextButton(
                               onPressed: () {
