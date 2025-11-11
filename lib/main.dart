@@ -1,5 +1,6 @@
-
 import 'package:divide_ai/screens/home_group_screen.dart';
+import 'package:divide_ai/screens/login_screen.dart';
+import 'package:divide_ai/services/session_service.dart';
 import 'package:divide_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -7,18 +8,25 @@ import 'package:intl/date_symbol_data_local.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('pt_BR', null);
-  runApp(const MyApp());
+  
+  // VERIFICAÇÃO INICIAL DE SESSÃO
+  final isLoggedIn = await SessionService.isUserLoggedIn(); 
+  
+  runApp(MyApp(isLoggedIn: isLoggedIn));
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final bool isLoggedIn;
+  
+  const MyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Divide Aí',
       theme: AppTheme.darkTheme,
-      home: const HomeGroupScreen(),
+      // Se logado, vai para Home, se não, vai para Login
+      home: isLoggedIn ? const HomeGroupScreen() : const LoginScreen(), 
     );
   }
 }
