@@ -1,12 +1,12 @@
 import 'package:divide_ai/components/ui/button.dart';
-import 'package:divide_ai/components/ui/input.dart'; // IMPORT DO INPUT SIMPLES
+import 'package:divide_ai/components/ui/input.dart';
 import 'package:divide_ai/screens/home_group_screen.dart';
 import 'package:divide_ai/screens/login_screen.dart';
 import 'package:divide_ai/services/user_service.dart';
 import 'package:divide_ai/services/auth_service.dart';
+import 'package:divide_ai/models/data/user_request.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
-import 'package:divide_ai/models/data/user_request.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -52,15 +52,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
         password: password,
       );
 
-      // 1. Cadastra o usuário
       await _userService.registerUser(userRequest);
       _showMessage('Cadastro realizado com sucesso!');
 
-      // 2. Faz login automático
       await _authService.login(email, password);
 
       if (mounted) {
-        // Navega para a Home e remove todas as rotas
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const HomeGroupScreen()),
@@ -69,7 +66,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     } catch (e) {
       debugPrint('Erro no cadastro: $e');
-      _showMessage('Falha no cadastro. Verifique os dados ou tente mais tarde.');
+      _showMessage(
+        'Falha no cadastro. Verifique os dados ou tente mais tarde.',
+      );
     } finally {
       if (mounted) {
         setState(() {
@@ -80,13 +79,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _navigateToLogin() {
-    // Substitui a rota para ir para o Login
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -96,7 +94,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final cardBorderColor = const Color(0xFF3A3A3A); // Cor usada no Card
+    final cardBorderColor = const Color(0xFF3A3A3A);
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
@@ -125,14 +123,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
-                      side: BorderSide(color: cardBorderColor.withOpacity(0.25), width: 1),
+                      side: BorderSide(
+                        color: cardBorderColor.withOpacity(0.25),
+                        width: 1,
+                      ),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 22.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0,
+                        vertical: 22.0,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // 1. CAMPO NOME COMPLETO: USANDO INPUT SIMPLES
                           Input(
                             'Nome completo',
                             hint: 'Seu nome',
@@ -144,7 +147,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                           const SizedBox(height: 16),
 
-                          // 2. CAMPO EMAIL: USANDO INPUT SIMPLES
                           Input(
                             'Email',
                             hint: 'seu@email.com',
@@ -156,7 +158,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                           const SizedBox(height: 16),
 
-                          // 3. CAMPO SENHA: USANDO INPUT SIMPLES
                           Input(
                             'Senha',
                             hint: '********',
@@ -181,15 +182,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
                           // Link Entrar
                           Center(
-                            child: TextButton(
+                            child: Button(
+                              text: "Já tem conta? Entre",
                               onPressed: _navigateToLogin,
-                              child: Text(
-                                "Já tem conta? Entre",
-                                style: TextStyle(
-                                  color: theme.colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              size: ButtonSize.small,
+                              isLink:
+                                  true,
                             ),
                           ),
                         ],

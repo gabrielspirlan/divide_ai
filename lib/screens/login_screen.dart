@@ -1,7 +1,7 @@
 import 'package:divide_ai/components/ui/button.dart';
 import 'package:divide_ai/components/ui/input.dart';
 import 'package:divide_ai/screens/home_group_screen.dart';
-import 'package:divide_ai/screens/register_screen.dart'; 
+import 'package:divide_ai/screens/register_screen.dart';
 import 'package:divide_ai/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
     _passwordController.dispose();
     super.dispose();
   }
-  
+
   void _navigateToRegister() {
     Navigator.push(
       context,
@@ -72,9 +72,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -109,10 +109,16 @@ class _LoginScreenState extends State<LoginScreen> {
                     elevation: 0,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
-                      side: BorderSide(color: cardBorderColor.withOpacity(0.25), width: 1),
+                      side: BorderSide(
+                        color: cardBorderColor.withOpacity(0.25),
+                        width: 1,
+                      ),
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 22.0),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20.0,
+                        vertical: 22.0,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -151,15 +157,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
                           // Link Cadastre-se
                           Center(
-                            child: TextButton(
+                            child: Button(
+                              text: "Não tem conta? Cadastre-se",
                               onPressed: _navigateToRegister,
-                              child: Text(
-                                "Não tem conta? Cadastre-se",
-                                style: TextStyle(
-                                  color: theme.colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
+                              size: ButtonSize.small,
+                              isLink:
+                                  true,
                             ),
                           ),
                         ],
