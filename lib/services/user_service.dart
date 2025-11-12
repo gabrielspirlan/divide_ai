@@ -5,17 +5,18 @@ import 'package:divide_ai/config/app_config.dart';
 import 'package:divide_ai/services/http_request.dart';
 import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/data/user_request.dart';
+import 'package:divide_ai/services/session_service.dart'; // IMPORT NECESSÁRIO
 
 class UserService {
   final String _baseUrl = AppConfig.baseUrl;
-  final http.Client _inner = http.Client();
+  
   // POST /users: Cadastro de novo usuário
   Future<User> registerUser(UserRequest userRequest) async {
     try {
       final url = Uri.parse('$_baseUrl/users');
 
-      // O POST de cadastro não precisa de token, mas usa o HttpRequest para consistência.
-      final response = await _inner.post(
+      // Usando o método estático http.post para rotas públicas (cadastro).
+      final response = await http.post(
         url,
         body: jsonEncode(userRequest.toJson()),
         headers: {
@@ -34,6 +35,20 @@ class UserService {
       rethrow;
     }
   }
+  
+  // NOVO MÉTODO: Obtém o usuário logado (usado na SettingsScreen e EditUserScreen)
+  Future<User> getLoggedUser() async {
+    final userId = await SessionService.getUserId(); // Pega o ID salvo
+
+    if (userId == null || userId.isEmpty) {
+      // Se não houver ID salvo, lança uma exceção para a UI tratar
+      throw Exception('Nenhum usuário logado encontrado.');
+    }
+
+    // Reutiliza o método existente getUserById para buscar os dados via API
+    return getUserById(userId);
+  }
+
 
   // GET /users: Lista todos os usuários (rota paginada)
   Future<List<User>> getAllUsers() async {
