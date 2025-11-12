@@ -1,43 +1,42 @@
 import 'package:divide_ai/components/ui/button.dart';
-import 'package:divide_ai/components/ui/input.dart';
+import 'package:divide_ai/components/ui/input.dart'; // IMPORT DO INPUT SIMPLES
 import 'package:divide_ai/screens/home_group_screen.dart';
-import 'package:divide_ai/screens/register_screen.dart'; 
+import 'package:divide_ai/screens/login_screen.dart';
+import 'package:divide_ai/services/user_service.dart';
 import 'package:divide_ai/services/auth_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
+import 'package:divide_ai/models/data/user_request.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final UserService _userService = UserService();
   final AuthService _authService = AuthService();
   bool _isLoading = false;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
-  
-  void _navigateToRegister() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const RegisterScreen()),
-    );
-  }
 
-  void _performLogin() async {
+  void _performRegistration() async {
+    final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    if (email.isEmpty || password.isEmpty) {
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
       _showMessage('Preencha todos os campos.');
       return;
     }
@@ -47,9 +46,21 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
+      final userRequest = UserRequest(
+        name: name,
+        email: email,
+        password: password,
+      );
+
+      // 1. Cadastra o usuário
+      await _userService.registerUser(userRequest);
+      _showMessage('Cadastro realizado com sucesso!');
+
+      // 2. Faz login automático
       await _authService.login(email, password);
 
       if (mounted) {
+        // Navega para a Home e remove todas as rotas
         Navigator.pushAndRemoveUntil(
           context,
           MaterialPageRoute(builder: (context) => const HomeGroupScreen()),
@@ -57,11 +68,8 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
-      _showMessage(
-        e.toString().contains('Credenciais inválidas')
-            ? 'Email ou senha incorretos.'
-            : 'Erro ao conectar. Tente novamente.',
-      );
+      debugPrint('Erro no cadastro: $e');
+      _showMessage('Falha no cadastro. Verifique os dados ou tente mais tarde.');
     } finally {
       if (mounted) {
         setState(() {
@@ -77,15 +85,23 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  void _navigateToLogin() {
+    // Substitui a rota para ir para o Login
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final cardBorderColor = const Color(0xFF3A3A3A);
+    final cardBorderColor = const Color(0xFF3A3A3A); // Cor usada no Card
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
-        title: const Text('Entrar'),
+        title: const Text('Criar Conta'),
         backgroundColor: theme.colorScheme.background,
         elevation: 0,
         leading: Navigator.of(context).canPop()
@@ -116,6 +132,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          // 1. CAMPO NOME COMPLETO: USANDO INPUT SIMPLES
+                          Input(
+                            'Nome completo',
+                            hint: 'Seu nome',
+                            icon: HugeIcons.strokeRoundedUser02,
+                            controller: _nameController,
+                            keyboardType: TextInputType.name,
+                            size: InputSize.large,
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // 2. CAMPO EMAIL: USANDO INPUT SIMPLES
                           Input(
                             'Email',
                             hint: 'seu@email.com',
@@ -125,8 +154,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             size: InputSize.large,
                           ),
 
-                          const SizedBox(height: 18),
+                          const SizedBox(height: 16),
 
+                          // 3. CAMPO SENHA: USANDO INPUT SIMPLES
                           Input(
                             'Senha',
                             hint: '********',
@@ -136,25 +166,25 @@ class _LoginScreenState extends State<LoginScreen> {
                             size: InputSize.large,
                           ),
 
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 30),
 
-                          // Botão Entrar
+                          // Botão Criar Conta
                           _isLoading
                               ? const Center(child: CircularProgressIndicator())
                               : Button(
-                                  text: "Entrar",
-                                  onPressed: _performLogin,
+                                  text: "Criar Conta",
+                                  onPressed: _performRegistration,
                                   size: ButtonSize.large,
                                 ),
 
                           const SizedBox(height: 14),
 
-                          // Link Cadastre-se
+                          // Link Entrar
                           Center(
                             child: TextButton(
-                              onPressed: _navigateToRegister,
+                              onPressed: _navigateToLogin,
                               child: Text(
-                                "Não tem conta? Cadastre-se",
+                                "Já tem conta? Entre",
                                 style: TextStyle(
                                   color: theme.colorScheme.primary,
                                   fontWeight: FontWeight.bold,

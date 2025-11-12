@@ -6,7 +6,7 @@ class Group {
   final int id;
   final String name;
   final String description;
-  final List<int> participantIds;
+  final List<String> participantIds; // ALTERADO: Agora é List<String>
   final double value;
   final Color backgroundIconColor;
 
@@ -19,18 +19,19 @@ class Group {
   }) : id = _nextId++;
 }
 
+// Lista de dados de teste adaptada para usar Strings
 List<Group> groups = [
   Group(
     "Bahia Lanches",
     description: "Lanches no Bahia Lanches",
-    participantIds: [1, 2, 3, 4],
+    participantIds: ["1", "2", "3", "4"],
     value: 260.00,
     backgroundIconColor: Color(0xFF1447e6),
   ),
   Group(
     "Espetinho",
     description: "Espetinho da Fatec",
-    participantIds: [1, 2, 3, 4],
+    participantIds: ["1", "2", "3", "4"],
     value: 80.00,
     backgroundIconColor: Color(0xFF10b981),
   ),

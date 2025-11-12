@@ -51,7 +51,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     final newGroup = Group(
       name,
       description: _descriptionController.text.trim(),
-      participantIds: selectedUsers.map((u) => u.id).toList(),
+      participantIds: selectedUsers.map((u) => u.id).toList(), 
       value: 0.0,
       backgroundIconColor: _selectedColor!,
     );

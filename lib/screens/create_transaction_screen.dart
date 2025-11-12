@@ -13,13 +13,13 @@ import 'package:hugeicons/hugeicons.dart';
 
 class CreateTransactionScreen extends StatefulWidget {
   final int groupId;
-  final int? transactionId; // NOVO: ID da transação se for edição
+  final int? transactionId; 
 
   const CreateTransactionScreen({
     super.key,
     required this.groupId,
-    this.transactionId, // NOVO: Campo opcional
-  });
+    this.transactionId,
+  }) : assert(groupId != 0, 'groupId cannot be zero');
 
   @override
   State<CreateTransactionScreen> createState() =>
@@ -29,12 +29,11 @@ class CreateTransactionScreen extends StatefulWidget {
 class CreateTransactionScreenState extends State<CreateTransactionScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _valueController = TextEditingController();
-  Set<int> _selectedParticipantIndexes = {}; // Inicializado vazio para controle
+  Set<int> _selectedParticipantIndexes = {};
   late final int _pageLoadStartTime;
   late List<User> _groupParticipants;
   late User _currentUser;
 
-  // NOVOS ESTADOS
   bool _isEditing = false;
   bool _isLoadingData = false;
   Transaction? _currentTransaction;
@@ -51,9 +50,8 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
     _initializeGroupParticipants();
 
     if (_isEditing) {
-      _loadTransactionData(); // CARREGA DADOS SE FOR EDIÇÃO
+      _loadTransactionData();
     } else {
-      // Configurações padrão para criação: o usuário principal é o primeiro selecionado
       _selectedParticipantIndexes.add(0);
     }
 
@@ -62,7 +60,6 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
     });
   }
 
-  // MÉTODO PARA CARREGAR DADOS DE EDIÇÃO
   Future<void> _loadTransactionData() async {
     if (widget.transactionId == null) return;
     
@@ -74,12 +71,9 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
       final transaction = await _transactionService.getTransactionById(widget.transactionId!);
       
       if (mounted) {
-        // Pré-preenche campos
         _nameController.text = transaction.description;
-        // Formata o valor com vírgula para exibir corretamente no input
         _valueController.text = transaction.value.toString().replaceAll('.', ',');
         
-        // Mapeia IDs de participantes da transação para índices na lista local
         Set<int> initialIndexes = transaction.participantIds
             .map((id) => _groupParticipants.indexWhere((u) => u.id == id))
             .where((index) => index != -1)
@@ -113,7 +107,6 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
 
     _currentUser = users.first;
 
-    // Garante que o usuário atual esteja na posição 0
     if (_groupParticipants.any((u) => u.id == _currentUser.id)) {
       _groupParticipants.removeWhere((u) => u.id == _currentUser.id);
       _groupParticipants.insert(0, _currentUser);
@@ -134,9 +127,7 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
     });
   }
 
-  // MÉTODO UNIFICADO: LIDA COM POST (CRIAÇÃO) E PUT (EDIÇÃO)
   void _saveTransaction() async {
-    // 1. Validações
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(_isEditing ? "Salvando alterações..." : "Adicionando despesa...")),
       );
@@ -162,11 +153,10 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
       return;
     }
 
-    List<int> participantIds = _selectedParticipantIndexes
+    final List<String> participantIds = _selectedParticipantIndexes
         .map((index) => _groupParticipants[index].id)
         .toList();
 
-    // 2. Criar objeto de Requisição
     final transactionRequest = TransactionRequest(
       description: _nameController.text.trim(),
       value: value,
@@ -174,22 +164,18 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
       groupId: widget.groupId,
     );
 
-    // 3. Chamada à API (POST ou PUT)
     try {
       if (_isEditing && widget.transactionId != null) {
-        // EDIÇÃO (PUT)
         await _transactionService.updateTransaction(
           widget.transactionId!,
           transactionRequest,
         );
       } else {
-        // CRIAÇÃO (POST)
         await _transactionService.createTransaction(transactionRequest);
       }
 
       if (mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        // Retorna true para sinalizar à tela anterior que houve mudança
         Navigator.of(context).pop(true); 
       }
     } catch (e) {
@@ -207,12 +193,10 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // 4. Gerenciamento do Título e Botão
     final appBarTitle = _isEditing ? "Editar Despesa" : "Nova Despesa";
     final appBarDescription = _isEditing ? "Atualize as informações da transação" : "Insira as informações da sua nova despesa";
     final buttonText = _isEditing ? "Salvar Alterações" : "Adicionar Despesa";
 
-    // 5. Tela de Carregamento para Edição
     if (_isEditing && _isLoadingData) {
       return Scaffold(
         appBar: CustomAppBar(appBarTitle, description: appBarDescription),
@@ -220,7 +204,6 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
       );
     }
     
-    // 6. Layout principal
     return Scaffold(
       appBar: CustomAppBar(
         appBarTitle,
@@ -252,7 +235,6 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
               mainUser: _currentUser,
               canDeselectMainUser: true,
               onSelectionChanged: _onParticipantsChanged,
-              // INICIALIZA A SELEÇÃO SE JÁ HOUVER DADOS CARREGADOS
               initialSelectedIndexes: _selectedParticipantIndexes, 
             ),
             const SizedBox(height: 20),
@@ -260,7 +242,7 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
               width: double.infinity,
               child: Button(
                 text: buttonText,
-                onPressed: _saveTransaction, // CHAMA O MÉTODO UNIFICADO
+                onPressed: _saveTransaction,
                 size: ButtonSize.large,
               ),
             ),
