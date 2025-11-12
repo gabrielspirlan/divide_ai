@@ -1,43 +1,42 @@
 import 'package:divide_ai/components/ui/button.dart';
 import 'package:divide_ai/components/ui/input.dart';
 import 'package:divide_ai/screens/home_group_screen.dart';
-import 'package:divide_ai/screens/register_screen.dart';
+import 'package:divide_ai/screens/login_screen.dart';
+import 'package:divide_ai/services/user_service.dart';
 import 'package:divide_ai/services/auth_service.dart';
+import 'package:divide_ai/models/data/user_request.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _RegisterScreenState extends State<RegisterScreen> {
+  final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final UserService _userService = UserService();
   final AuthService _authService = AuthService();
   bool _isLoading = false;
 
   @override
   void dispose() {
+    _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _navigateToRegister() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const RegisterScreen()),
-    );
-  }
-
-  void _performLogin() async {
+  void _performRegistration() async {
+    final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
-    if (email.isEmpty || password.isEmpty) {
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
       _showMessage('Preencha todos os campos.');
       return;
     }
@@ -47,6 +46,15 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
+      final userRequest = UserRequest(
+        name: name,
+        email: email,
+        password: password,
+      );
+
+      await _userService.registerUser(userRequest);
+      _showMessage('Cadastro realizado com sucesso!');
+
       await _authService.login(email, password);
 
       if (mounted) {
@@ -57,10 +65,9 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
     } catch (e) {
+      debugPrint('Erro no cadastro: $e');
       _showMessage(
-        e.toString().contains('Credenciais inválidas')
-            ? 'Email ou senha incorretos.'
-            : 'Erro ao conectar. Tente novamente.',
+        'Falha no cadastro. Verifique os dados ou tente mais tarde.',
       );
     } finally {
       if (mounted) {
@@ -77,6 +84,13 @@ class _LoginScreenState extends State<LoginScreen> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  void _navigateToLogin() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -85,7 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
-        title: const Text('Entrar'),
+        title: const Text('Criar Conta'),
         backgroundColor: theme.colorScheme.background,
         elevation: 0,
         leading: Navigator.of(context).canPop()
@@ -123,6 +137,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           Input(
+                            'Nome completo',
+                            hint: 'Seu nome',
+                            icon: HugeIcons.strokeRoundedUser02,
+                            controller: _nameController,
+                            keyboardType: TextInputType.name,
+                            size: InputSize.large,
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          Input(
                             'Email',
                             hint: 'seu@email.com',
                             icon: HugeIcons.strokeRoundedMail01,
@@ -131,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             size: InputSize.large,
                           ),
 
-                          const SizedBox(height: 18),
+                          const SizedBox(height: 16),
 
                           Input(
                             'Senha',
@@ -142,24 +167,24 @@ class _LoginScreenState extends State<LoginScreen> {
                             size: InputSize.large,
                           ),
 
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 30),
 
-                          // Botão Entrar
+                          // Botão Criar Conta
                           _isLoading
                               ? const Center(child: CircularProgressIndicator())
                               : Button(
-                                  text: "Entrar",
-                                  onPressed: _performLogin,
+                                  text: "Criar Conta",
+                                  onPressed: _performRegistration,
                                   size: ButtonSize.large,
                                 ),
 
                           const SizedBox(height: 14),
 
-                          // Link Cadastre-se
+                          // Link Entrar
                           Center(
                             child: Button(
-                              text: "Não tem conta? Cadastre-se",
-                              onPressed: _navigateToRegister,
+                              text: "Já tem conta? Entre",
+                              onPressed: _navigateToLogin,
                               size: ButtonSize.small,
                               isLink:
                                   true,

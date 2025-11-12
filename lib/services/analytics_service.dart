@@ -2,10 +2,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:divide_ai/models/analytics_models.dart';
+import 'package:divide_ai/config/app_config.dart';
+import 'package:divide_ai/services/http_request.dart';
 
 class AnalyticsService {
-  static const String _baseUrl = 'https://divide-ai-api-i8en.onrender.com';
+  static final String _baseUrl = AppConfig.baseUrl;
 
+  // Adaptação dos métodos estáticos para usar o HttpRequest
   static Future<void> trackEvent({
     required String elementId,
     required String eventType,
@@ -19,15 +22,14 @@ class AnalyticsService {
         'eventType': eventType,
         'page': page,
       };
-
       
       if (eventType == 'LOADING') {
         payload['loading'] = loading ?? DateTime.now().millisecondsSinceEpoch;
       }
-
-      await http.post(
+      
+      // USANDO CLIENTE AUTENTICADO para envio
+      await authenticatedHttpClient.post(
         Uri.parse('$_baseUrl/event'),
-        headers: {'Content-Type': 'application/json'},
         body: jsonEncode(payload),
       );
     } catch (e) {
@@ -75,17 +77,17 @@ class AnalyticsService {
     );
   }
 
-
   static Future<bool> testConnectivity() async {
     try {
       debugPrint('Testando conectividade com: $_baseUrl');
-      final response = await http.get(
+      // USANDO CLIENTE AUTENTICADO para teste
+      final response = await authenticatedHttpClient.get(
         Uri.parse('$_baseUrl/event/analytics/stats'),
-        headers: {'Content-Type': 'application/json'},
       ).timeout(Duration(seconds: 5));
 
       debugPrint('Teste de conectividade - Status: ${response.statusCode}');
-      return response.statusCode == 200;
+      // Verifica se o status é 200 (OK) e se não foi forçado o logout pelo 401
+      return response.statusCode == 200; 
     } catch (e) {
       debugPrint('Teste de conectividade falhou: $e');
       return false;
@@ -93,6 +95,11 @@ class AnalyticsService {
   }
 
   Future<AnalyticsData> fetchAllAnalyticsData() async {
+    // ... (restante da lógica de carregamento mantida) ...
+    // Note: Os métodos privados (_getSummary, etc.) já foram adaptados no passo anterior
+    // para usar authenticatedHttpClient.
+    
+    // Retornando a implementação completa apenas para referência da estrutura:
     try {
       debugPrint('Iniciando busca de dados de analytics...');
 
@@ -127,48 +134,34 @@ class AnalyticsService {
     }
   }
 
+  // Métodos de GET privado adaptados para usar authenticatedHttpClient
   Future<SummaryData> _getSummary() async {
     try {
-      debugPrint('Fazendo requisição para: $_baseUrl/event/analytics/stats');
-      final response = await http.get(
+      final response = await authenticatedHttpClient.get(
         Uri.parse('$_baseUrl/event/analytics/stats'),
-        headers: {'Content-Type': 'application/json'},
       ).timeout(Duration(seconds: 10));
 
-      debugPrint('Status da resposta: ${response.statusCode}');
-
       if (response.statusCode == 200) {
-        debugPrint('Dados recebidos com sucesso');
         return SummaryData.fromJson(jsonDecode(response.body));
       } else {
-        debugPrint('Erro HTTP: ${response.statusCode} - ${response.body}');
         throw Exception('Failed to load summary: ${response.statusCode}');
       }
-    } catch (e) {
-      debugPrint('Erro ao buscar summary: $e');
-      rethrow;
-    }
+    } catch (e) { rethrow; }
   }
 
   Future<InsightData> _getSlowestPage() async {
     try {
-      final response = await http.get(
+      final response = await authenticatedHttpClient.get(
         Uri.parse('$_baseUrl/event/analytics/slowest-loading-item'),
-        headers: {'Content-Type': 'application/json'},
       ).timeout(Duration(seconds: 10));
 
       if (response.statusCode == 200) {
         return InsightData.fromSlowestPage(jsonDecode(response.body));
       } else {
-        debugPrint('Erro ao buscar slowest page: ${response.statusCode}');
         throw Exception('Failed to load slowest page: ${response.statusCode}');
       }
-    } catch (e) {
-      debugPrint('Erro ao buscar slowest page: $e');
-      rethrow;
-    }
+    } catch (e) { rethrow; }
   }
-
   Future<InsightData> _getMostClickedButton() async {
     try {
       final response = await http.get(

@@ -8,6 +8,7 @@ class Button extends StatelessWidget {
   final VoidCallback onPressed;
   final IconData? icon;
   final ButtonSize size;
+  final bool isLink; // NOVO: Controla se o botão deve ser renderizado como link
 
   const Button({
     super.key,
@@ -15,6 +16,7 @@ class Button extends StatelessWidget {
     required this.onPressed,
     this.icon,
     this.size = ButtonSize.medium,
+    this.isLink = false, // NOVO: Default é falso
   });
 
   void _trackButtonClick(BuildContext context) {
@@ -58,6 +60,35 @@ class Button extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Se for um link, usamos TextButton
+    if (isLink) {
+      final theme = Theme.of(context);
+      
+      // TextButton não usa o SizedBox height e width, ele se ajusta ao texto
+      return TextButton(
+        onPressed: () {
+          _trackButtonClick(context);
+          onPressed();
+        },
+        style: TextButton.styleFrom(
+          // Fundo transparente
+          padding: EdgeInsets.zero, 
+          // Retira o padding padrão do TextButton
+          minimumSize: Size.zero, 
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: theme.colorScheme.primary, // Cor primária do tema para links
+            fontSize: _getFontSize(),
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+
+    // Comportamento padrão para ElevatedButton
     return SizedBox(
       height: _getHeight(),
       width: size == ButtonSize.small ? null : double.infinity,
@@ -81,12 +112,12 @@ class Button extends StatelessWidget {
           onPressed();
         },
         child: Row(
-          spacing: 10,
           mainAxisAlignment: MainAxisAlignment.center,
           mainAxisSize: MainAxisSize.max,
           children: [
             if (icon != null) ...[
               Icon(icon, size: _getFontSize() + 2, color: Colors.white),
+              const SizedBox(width: 10), // Adiciona espaçamento entre ícone e texto
             ],
             Text(
               text,
