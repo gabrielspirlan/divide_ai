@@ -1,18 +1,18 @@
+import 'package:flutter/material.dart';
+import 'package:hugeicons/hugeicons.dart';
+import 'package:intl/intl.dart';
 import 'package:divide_ai/components/group/group_card.dart';
 import 'package:divide_ai/components/ui/button.dart';
 import 'package:divide_ai/components/ui/custom_app_bar.dart';
 import 'package:divide_ai/components/ui/info_card.dart';
 import 'package:divide_ai/components/ui/special_info_card.dart';
-import 'package:divide_ai/models/data/group.dart';
-import 'package:divide_ai/models/data/user.dart';
-import 'package:divide_ai/models/data/transaction.dart';
+import 'package:divide_ai/models/data/group_api_model.dart';
 import 'package:divide_ai/screens/transactions_group_screen.dart';
 import 'package:divide_ai/screens/settings_screen.dart';
 import 'package:divide_ai/screens/create_group_screen.dart';
 import 'package:divide_ai/services/analytics_service.dart';
-import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
-import 'package:intl/intl.dart';
+import 'package:divide_ai/services/group_service.dart';
+import 'package:divide_ai/services/session_service.dart';
 
 class HomeGroupScreen extends StatefulWidget {
   const HomeGroupScreen({super.key});
@@ -26,16 +26,42 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
   double sharedExpenses = 0.0;
   int userGroupsCount = 0;
   late final int _pageLoadStartTime;
+  List<GroupApiModel> _groups = [];
 
   @override
   void initState() {
     super.initState();
     _pageLoadStartTime = DateTime.now().millisecondsSinceEpoch;
-    _calculateUserExpenses();
-    _calculateUserGroups();
+    _loadGroups();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _trackPageLoad();
     });
+  }
+
+  Future<void> _loadGroups() async {
+    try {
+      // ✅ Pega o ID do usuário logado
+      final userId = await SessionService.getUserId();
+      if (userId == null || userId.isEmpty) {
+        throw Exception("Usuário não encontrado na sessão");
+      }
+
+      // ✅ Chama a API com o userId
+      final groups = await GroupService.getGroupsByUser(userId);
+
+      setState(() {
+        _groups = groups;
+        userGroupsCount = groups.length;
+      });
+      _calculateUserExpenses();
+    } catch (e) {
+      debugPrint('❌ Erro ao carregar grupos: $e');
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Erro ao carregar grupos: $e')),
+        );
+      }
+    }
   }
 
   void _trackPageLoad() {
@@ -45,72 +71,36 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
   }
 
   void _calculateUserExpenses() {
-    if (users.isEmpty) return;
-    final firstUserId = users.first.id;
-    final userTransactions = transactions.where((t) => t.participantIds.contains(firstUserId)).toList();
     double individualTotal = 0.0;
     double sharedTotal = 0.0;
-    for (final transaction in userTransactions) {
-      if (transaction.participantIds.length == 1) {
-        individualTotal += transaction.value;
-      } else {
-        sharedTotal += transaction.value / transaction.participantIds.length;
+
+    for (final group in _groups) {
+      if (group.totalTransactions != null) {
+        sharedTotal += group.totalTransactions!;
       }
     }
+
     setState(() {
       individualExpenses = individualTotal;
       sharedExpenses = sharedTotal;
     });
   }
 
-  void _calculateUserExpensesNoSetState() {
-    if (users.isEmpty) return;
-    final firstUserId = users.first.id;
-    final userTransactions = transactions.where((t) => t.participantIds.contains(firstUserId)).toList();
-    double individualTotal = 0.0;
-    double sharedTotal = 0.0;
-    for (final transaction in userTransactions) {
-      if (transaction.participantIds.length == 1) {
-        individualTotal += transaction.value;
-      } else {
-        sharedTotal += transaction.value / transaction.participantIds.length;
-      }
-    }
-    individualExpenses = individualTotal;
-    sharedExpenses = sharedTotal;
-  }
-
-  void _calculateUserGroups() {
-    if (users.isEmpty) return;
-    final firstUserId = users.first.id;
-    final userGroups = groups.where((g) => g.participantIds.contains(firstUserId)).length;
-    setState(() {
-      userGroupsCount = userGroups;
-    });
-  }
-
-  void _calculateUserGroupsNoSetState() {
-    if (users.isEmpty) return;
-    final firstUserId = users.first.id;
-    userGroupsCount = groups.where((g) => g.participantIds.contains(firstUserId)).length;
-  }
-
-  void _reloadState() {
-    setState(() {
-      _calculateUserExpensesNoSetState();
-      _calculateUserGroupsNoSetState();
-    });
+  void _reloadState() async {
+    await _loadGroups();
   }
 
   @override
   Widget build(BuildContext context) {
     final formatter = NumberFormat.simpleCurrency(locale: 'pt_BR');
+
     return Scaffold(
       appBar: CustomAppBar(
-        "Olá ${users.first.name.split(' ').first}",
+        "Olá!",
         description: "Gerencie seus grupos de despesas",
         icon: HugeIcons.strokeRoundedSettings01,
         tapIcon: () async {
+          // 🔥 mantém o mesmo tempo de animação das outras telas
           await Future.delayed(const Duration(milliseconds: 300));
           if (context.mounted) {
             await Navigator.push(
@@ -196,23 +186,36 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
               ),
             ),
           ),
-          ...groups.map((group) {
-            return GroupCard(
-              group,
-              onTap: () async {
-                await Future.delayed(const Duration(milliseconds: 300));
-                if (context.mounted) {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TransactionsGroupScreen(groupId: group.id),
-                    ),
-                  );
-                  _reloadState();
-                }
-              },
-            );
-          }),
+          if (_groups.isEmpty)
+            const Padding(
+              padding: EdgeInsets.all(20),
+              child: Center(
+                child: Text(
+                  "Nenhum grupo encontrado.",
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ),
+            )
+          else
+            ..._groups.map((group) {
+              return GroupCard(
+                group,
+                onTap: () async {
+                  await Future.delayed(const Duration(milliseconds: 300));
+                  if (context.mounted) {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TransactionsGroupScreen(
+                          groupId: int.tryParse(group.id ?? '0') ?? 0,
+                        ),
+                      ),
+                    );
+                    _reloadState();
+                  }
+                },
+              );
+            }),
         ],
       ),
     );

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:divide_ai/components/transaction/bill_card.dart';
 import 'package:divide_ai/components/ui/custom_app_bar.dart';
 import 'package:divide_ai/components/ui/special_info_card.dart';
@@ -6,8 +8,6 @@ import 'package:divide_ai/models/data/group.dart';
 import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/services/analytics_service.dart';
-import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 class BillGroupScreen extends StatefulWidget {
   final int groupId;
@@ -39,7 +39,18 @@ class _BillGroupScreenState extends State<BillGroupScreen> {
   }
 
   void _calculateParticipantBills() {
-    final group = groups.firstWhere((g) => g.id == widget.groupId);
+    // ✅ Proteção caso o grupo não seja encontrado
+    final group = groups.firstWhere(
+      (g) => g.id == widget.groupId,
+      orElse: () => Group(
+        "Grupo não encontrado",
+        description: "Erro ao carregar dados do grupo",
+        participantIds: [],
+        value: 0.0,
+        backgroundIconColor: Colors.grey,
+      ),
+    );
+
     final groupTransactions = transactions
         .where((t) => t.groupId == widget.groupId)
         .toList();
@@ -59,8 +70,7 @@ class _BillGroupScreenState extends State<BillGroupScreen> {
           if (transaction.participantIds.length == 1) {
             individualTotal += transaction.value;
           } else {
-            sharedTotal +=
-                transaction.value / transaction.participantIds.length;
+            sharedTotal += transaction.value / transaction.participantIds.length;
           }
         }
       }
@@ -81,7 +91,17 @@ class _BillGroupScreenState extends State<BillGroupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final group = groups.firstWhere((g) => g.id == widget.groupId);
+    final group = groups.firstWhere(
+      (g) => g.id == widget.groupId,
+      orElse: () => Group(
+        "Grupo não encontrado",
+        description: "",
+        participantIds: [],
+        value: 0.0,
+        backgroundIconColor: Colors.grey,
+      ),
+    );
+
     final groupTransactions = transactions
         .where((t) => t.groupId == widget.groupId)
         .toList();
@@ -104,7 +124,7 @@ class _BillGroupScreenState extends State<BillGroupScreen> {
     return Scaffold(
       appBar: CustomAppBar("Divisão da comanda", description: group.name),
       body: ListView(
-        padding: EdgeInsets.all(10),
+        padding: const EdgeInsets.all(10),
         children: [
           SpecialInfoCard(
             "Total da comanda",
@@ -112,25 +132,21 @@ class _BillGroupScreenState extends State<BillGroupScreen> {
             description:
                 "Individual: ${formatter.format(totalIndividual)} - Compartilhado: ${formatter.format(totalShared)}",
           ),
-
-          SizedBox(height: 10),
-
-          Padding(
+          const SizedBox(height: 10),
+          const Padding(
             padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
             child: Text(
               "Quanto cada um deve pagar",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
             ),
           ),
-
           ...participantBills.map((bill) {
             return Padding(
-              padding: EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.only(bottom: 8),
               child: BillCard(bill),
             );
           }),
-
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
         ],
       ),
     );

@@ -4,11 +4,12 @@ import 'package:divide_ai/components/ui/card_input.dart';
 import 'package:divide_ai/components/ui/button.dart';
 import 'package:divide_ai/components/group/select_members_group.dart';
 import 'package:divide_ai/components/group/color_selector.dart';
-import 'package:divide_ai/models/data/group.dart';
 import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/enums/color_selector_variant.dart';
 import 'package:divide_ai/services/analytics_service.dart';
 import 'package:divide_ai/screens/home_group_screen.dart';
+import 'package:divide_ai/models/data/group_api_model.dart';
+import 'package:divide_ai/services/group_service.dart';
 
 class CreateGroupScreen extends StatefulWidget {
   const CreateGroupScreen({super.key});
@@ -48,15 +49,24 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
 
     final selectedUsers = _selectedIndexes.map((i) => users[i]).toList();
 
-    final newGroup = Group(
-      name,
+    // 🧩 Novo modelo compatível com a API
+    final newGroup = GroupApiModel(
+      name: name,
       description: _descriptionController.text.trim(),
-      participantIds: selectedUsers.map((u) => u.id).toList(),
-      value: 0.0,
-      backgroundIconColor: _selectedColor!,
+      participants: selectedUsers.map((u) => u.id.toString()).toList(),
+      backgroundIconColor:
+          '#${_selectedColor!.value.toRadixString(16).substring(2)}',
     );
 
-    groups.add(newGroup);
+    try {
+      await GroupService.createGroup(newGroup);
+    } catch (e) {
+      debugPrint("Erro ao criar grupo: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Erro ao criar grupo na API.")),
+      );
+      return;
+    }
 
     AnalyticsService.trackEvent(
       elementId: 'criar_grupo_button',
