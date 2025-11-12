@@ -8,16 +8,19 @@ import 'package:divide_ai/models/data/user_request.dart';
 
 class UserService {
   final String _baseUrl = AppConfig.baseUrl;
-
+  final http.Client _inner = http.Client();
   // POST /users: Cadastro de novo usuário
   Future<User> registerUser(UserRequest userRequest) async {
     try {
       final url = Uri.parse('$_baseUrl/users');
-      
+
       // O POST de cadastro não precisa de token, mas usa o HttpRequest para consistência.
-      final response = await authenticatedHttpClient.post(
+      final response = await _inner.post(
         url,
         body: jsonEncode(userRequest.toJson()),
+        headers: {
+          'Content-Type': 'application/json',
+        },
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {

@@ -12,6 +12,8 @@ class AuthService {
   // POST /auth/login
   Future<AuthResponse> login(String email, String password) async {
     try {
+
+      final http.Client _inner = http.Client();
       final url = Uri.parse('$_baseUrl/auth/login');
       final body = jsonEncode({
         'email': email,
