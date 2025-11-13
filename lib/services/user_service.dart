@@ -5,22 +5,21 @@ import 'package:divide_ai/config/app_config.dart';
 import 'package:divide_ai/services/http_request.dart';
 import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/data/user_request.dart';
+import 'package:divide_ai/services/session_service.dart'; // IMPORT NECESSÁRIO
 
 class UserService {
   final String _baseUrl = AppConfig.baseUrl;
-  final http.Client _inner = http.Client();
+
   // POST /users: Cadastro de novo usuário
   Future<User> registerUser(UserRequest userRequest) async {
     try {
       final url = Uri.parse('$_baseUrl/users');
 
-      // O POST de cadastro não precisa de token, mas usa o HttpRequest para consistência.
-      final response = await _inner.post(
+      // Usando o método estático http.post para rotas públicas (cadastro).
+      final response = await http.post(
         url,
         body: jsonEncode(userRequest.toJson()),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -35,6 +34,19 @@ class UserService {
     }
   }
 
+  // NOVO MÉTODO: Obtém o usuário logado (usado na SettingsScreen e EditUserScreen)
+  Future<User> getLoggedUser() async {
+    final userId = await SessionService.getUserId(); // Pega o ID salvo
+
+    if (userId == null || userId.isEmpty) {
+      // Se não houver ID salvo, lança uma exceção para a UI tratar
+      throw Exception('Nenhum usuário logado encontrado.');
+    }
+
+    // Reutiliza o método existente getUserById para buscar os dados via API
+    return getUserById(userId);
+  }
+
   // GET /users: Lista todos os usuários (rota paginada)
   Future<List<User>> getAllUsers() async {
     try {
@@ -44,7 +56,7 @@ class UserService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         // Assumindo que a lista de usuários está em "content" (padrão paginado)
-        final List<dynamic> jsonList = responseData['content'] ?? []; 
+        final List<dynamic> jsonList = responseData['content'] ?? [];
         return jsonList.map((json) => User.fromJson(json)).toList();
       } else {
         throw Exception('Falha ao carregar usuários: ${response.statusCode}');
@@ -65,7 +77,9 @@ class UserService {
         final Map<String, dynamic> json = jsonDecode(response.body);
         return User.fromJson(json);
       } else {
-        throw Exception('Falha ao carregar usuário $id: ${response.statusCode}');
+        throw Exception(
+          'Falha ao carregar usuário $id: ${response.statusCode}',
+        );
       }
     } catch (e) {
       debugPrint('Erro em getUserById: $e');
@@ -80,9 +94,11 @@ class UserService {
       final response = await authenticatedHttpClient.put(
         url,
         body: jsonEncode(userRequest.toJson()),
+        headers: {'Content-Type': 'application/json'},
       );
 
-      if (response.statusCode == 200) {
+
+      if (response.statusCode == 201) {
         final Map<String, dynamic> json = jsonDecode(response.body);
         return User.fromJson(json);
       } else {
