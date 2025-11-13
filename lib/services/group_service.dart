@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'package:divide_ai/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:divide_ai/models/data/group_api_model.dart';
 import 'package:divide_ai/services/session_service.dart';
 
 class GroupService {
-  static const String _baseUrl = 'https://divide-ai-api-i8en.onrender.com/groups';
+  static final String _baseUrl = "${AppConfig.baseUrl}/groups";
 
  
   static Future<List<GroupApiModel>> getGroupsByUser(String userId) async {

@@ -1,10 +1,11 @@
 import 'dart:convert';
+import 'package:divide_ai/config/app_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:divide_ai/services/session_service.dart';
 
 class ApiService {
-  static const String baseUrl = 'https://divide-ai-api-i8en.onrender.com';
+  static final String baseUrl = AppConfig.baseUrl;
 
   // GET genérico
   static Future<http.Response> get(String endpoint) async {

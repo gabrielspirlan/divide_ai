@@ -207,7 +207,7 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => TransactionsGroupScreen(
-                          groupId: int.tryParse(group.id ?? '0') ?? 0,
+                          group: group,
                         ),
                       ),
                     );

@@ -10,7 +10,7 @@ class TransactionService {
   static final String _baseUrl = AppConfig.baseUrl;
 
   // 1. GET /transactions/group/{groupId}
-  Future<List<Transaction>> getGroupTransactions(int groupId) async {
+  Future<List<Transaction>> getGroupTransactions(String groupId) async {
     try {
       final url = Uri.parse('$_baseUrl/transactions/group/$groupId');
       
