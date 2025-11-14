@@ -4,7 +4,6 @@ import 'package:divide_ai/components/ui/card_input.dart';
 import 'package:divide_ai/components/ui/button.dart';
 import 'package:divide_ai/components/group/select_members_group.dart';
 import 'package:divide_ai/components/group/color_selector.dart';
-import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/enums/color_selector_variant.dart';
 import 'package:divide_ai/services/analytics_service.dart';
 import 'package:divide_ai/screens/home_group_screen.dart';
@@ -21,10 +20,11 @@ class CreateGroupScreen extends StatefulWidget {
 class _CreateGroupScreenState extends State<CreateGroupScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final Set<int> _selectedIndexes = {0};
+  Set<int> _selectedIndexes = {0};
+  List<String> _selectedUserIds = [];
   Color? _selectedColor;
 
-  final User currentUser = users.first;
+  final GroupService _groupService = GroupService();
 
   late final int _pageLoadStartTime;
 
@@ -47,21 +47,20 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     final name = _nameController.text.trim();
     if (name.isEmpty || _selectedColor == null) return;
 
-    final selectedUsers = _selectedIndexes.map((i) => users[i]).toList();
-
     // 🧩 Novo modelo compatível com a API
     final newGroup = GroupApiModel(
       name: name,
       description: _descriptionController.text.trim(),
-      participants: selectedUsers.map((u) => u.id.toString()).toList(),
+      participants: _selectedUserIds,
       backgroundIconColor:
           '#${_selectedColor!.value.toRadixString(16).substring(2)}',
     );
 
     try {
-      await GroupService.createGroup(newGroup);
+      await _groupService.createGroup(newGroup);
     } catch (e) {
       debugPrint("Erro ao criar grupo: $e");
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Erro ao criar grupo na API.")),
       );
@@ -86,11 +85,10 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
     );
   }
 
-  void _onSelectionChanged(Set<int> indexes) {
+  void _onSelectionChanged(Set<int> indexes, List<String> userIds) {
     setState(() {
-      _selectedIndexes
-        ..clear()
-        ..addAll(indexes);
+      _selectedIndexes = indexes;
+      _selectedUserIds = userIds;
     });
   }
 
@@ -130,18 +128,7 @@ class _CreateGroupScreenState extends State<CreateGroupScreen> {
               },
             ),
             const SizedBox(height: 16),
-            Text(
-              "Membros do grupo",
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                color: theme.colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 8),
             SelectMembersGroup(
-              participants: users,
-              mainUser: currentUser,
-              canDeselectMainUser: false,
               onSelectionChanged: _onSelectionChanged,
             ),
             const SizedBox(height: 20),

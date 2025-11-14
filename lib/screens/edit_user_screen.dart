@@ -73,13 +73,13 @@ class _EditUserScreenState extends State<EditUserScreen> {
   void _updateUser() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
-    final password = _passwordController.text; // Senha é opcional, mas deve ser enviada se alterada
+    final password = _passwordController.text.trim();
 
     if (name.isEmpty || email.isEmpty) {
       _showMessage('Nome e email são obrigatórios.');
       return;
     }
-    
+
     // Garantir que o ID esteja disponível
     if (_currentUserId == null) return;
 
@@ -88,15 +88,16 @@ class _EditUserScreenState extends State<EditUserScreen> {
     });
 
     try {
+      // Só envia a senha se ela não estiver vazia
       final userRequest = UserRequest(
         name: name,
         email: email,
-        password: password, // Envia a senha, mesmo que esteja vazia (API deve lidar)
+        password: password.isEmpty ? null : password,
       );
 
       // CHAMA O PUT /users/{id}
       await _userService.updateUser(_currentUserId!, userRequest);
-      
+
       if (mounted) {
         _showMessage('Informações atualizadas com sucesso!');
         Navigator.of(context).pop(true); // Retorna à tela de configurações

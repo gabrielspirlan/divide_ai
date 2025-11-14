@@ -26,46 +26,52 @@ class UserCard extends StatelessWidget {
               padding: EdgeInsets.all(12),
               child: Icon(HugeIcons.strokeRoundedUser02, size: 32),
             ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 3,
-              children: [
-                Text(
-                  _user.name,
-                  style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20),
-                ),
-                Text(
-                  _user.email,
-                  style: TextStyle(color: Colors.white60, fontSize: 16),
-                ),
-                InkWell(
-                  onTap: onTap,
-                  borderRadius: BorderRadius.circular(8),
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-                    child: Row(
-                      spacing: 4,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          HugeIcons.strokeRoundedPencilEdit02,
-                          color: Theme.of(context).colorScheme.onPrimaryFixed,
-                          size: 14,
-                        ),
-                        Text(
-                          "Editar perfil",
-                          style: TextStyle(
-                            fontSize: 14,
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 3,
+                children: [
+                  Text(
+                    _user.name,
+                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                  Text(
+                    _user.email,
+                    style: TextStyle(color: Colors.white60, fontSize: 16),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                  InkWell(
+                    onTap: onTap,
+                    borderRadius: BorderRadius.circular(8),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                      child: Row(
+                        spacing: 4,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            HugeIcons.strokeRoundedPencilEdit02,
                             color: Theme.of(context).colorScheme.onPrimaryFixed,
-                            fontWeight: FontWeight.w900,
+                            size: 14,
                           ),
-                        ),
-                      ],
+                          Text(
+                            "Editar perfil",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Theme.of(context).colorScheme.onPrimaryFixed,
+                              fontWeight: FontWeight.w900,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),

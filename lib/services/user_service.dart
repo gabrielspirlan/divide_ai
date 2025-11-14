@@ -67,6 +67,45 @@ class UserService {
     }
   }
 
+  // NOVO MÉTODO: Busca TODOS os usuários de todas as páginas
+  Future<List<User>> getAllUsersPaginated() async {
+    try {
+      List<User> allUsers = [];
+      int currentPage = 0;
+      int totalPages = 1;
+      const int pageSize = 100; // Tamanho da página
+
+      // Loop para buscar todas as páginas
+      while (currentPage < totalPages) {
+        final url = Uri.parse('$_baseUrl/users?page=$currentPage&size=$pageSize');
+        final response = await authenticatedHttpClient.get(url);
+
+        if (response.statusCode == 200) {
+          final Map<String, dynamic> responseData = jsonDecode(response.body);
+
+          // Pega os usuários da página atual
+          final List<dynamic> jsonList = responseData['content'] ?? [];
+          final List<User> pageUsers = jsonList.map((json) => User.fromJson(json)).toList();
+          allUsers.addAll(pageUsers);
+
+          // Atualiza o total de páginas
+          totalPages = responseData['totalPages'] ?? 1;
+          currentPage++;
+
+          debugPrint('Carregados ${pageUsers.length} usuários da página $currentPage de $totalPages');
+        } else {
+          throw Exception('Falha ao carregar usuários: ${response.statusCode}');
+        }
+      }
+
+      debugPrint('Total de usuários carregados: ${allUsers.length}');
+      return allUsers;
+    } catch (e) {
+      debugPrint('Erro em getAllUsersPaginated: $e');
+      rethrow;
+    }
+  }
+
   // GET /users/{id}
   Future<User> getUserById(String id) async {
     try {

@@ -181,7 +181,7 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
                           final result = await Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (context) => CreateTransactionScreen(
-                                groupId: int.parse(widget.group.id!),
+                                groupId: widget.group.id!,
                               ),
                             ),
                           );
@@ -228,7 +228,7 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
                         final result = await Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => CreateTransactionScreen(
-                              groupId: int.parse(widget.group.id!),
+                              groupId: widget.group.id!,
                               transactionId: transaction.id,
                             ),
                           ),

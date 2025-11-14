@@ -1,8 +1,8 @@
 class TransactionRequest {
   final String description;
   final double value;
-  final List<String> participantIds; 
-  final int groupId;
+  final List<String> participantIds;
+  final String groupId;
 
   TransactionRequest({
     required this.description,
@@ -15,8 +15,8 @@ class TransactionRequest {
     return {
       'description': description,
       'value': value,
-      'participants': participantIds, 
-      'group': groupId.toString(),
+      'participants': participantIds,
+      'group': groupId,
     };
   }
 }

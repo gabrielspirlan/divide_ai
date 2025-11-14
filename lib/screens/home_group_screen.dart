@@ -12,6 +12,7 @@ import 'package:divide_ai/screens/settings_screen.dart';
 import 'package:divide_ai/screens/create_group_screen.dart';
 import 'package:divide_ai/services/analytics_service.dart';
 import 'package:divide_ai/services/group_service.dart';
+import 'package:divide_ai/services/transaction_service.dart';
 import 'package:divide_ai/services/session_service.dart';
 
 class HomeGroupScreen extends StatefulWidget {
@@ -22,11 +23,15 @@ class HomeGroupScreen extends StatefulWidget {
 }
 
 class HomeGroupScreenState extends State<HomeGroupScreen> {
+  double totalExpenses = 0.0;
   double individualExpenses = 0.0;
   double sharedExpenses = 0.0;
   int userGroupsCount = 0;
   late final int _pageLoadStartTime;
   List<GroupApiModel> _groups = [];
+  final GroupService _groupService = GroupService();
+  final TransactionService _transactionService = TransactionService();
+  bool _isLoadingExpenses = true;
 
   @override
   void initState() {
@@ -47,19 +52,47 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
       }
 
       // ✅ Chama a API com o userId
-      final groups = await GroupService.getGroupsByUser(userId);
+      final groups = await _groupService.getGroupsByUser(userId);
 
       setState(() {
         _groups = groups;
         userGroupsCount = groups.length;
       });
-      _calculateUserExpenses();
+
+      // ✅ Carrega os totais de despesas do usuário
+      await _loadUserExpenses(userId);
     } catch (e) {
       debugPrint('❌ Erro ao carregar grupos: $e');
-      if (context.mounted) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erro ao carregar grupos: $e')),
         );
+      }
+    }
+  }
+
+  Future<void> _loadUserExpenses(String userId) async {
+    try {
+      setState(() {
+        _isLoadingExpenses = true;
+      });
+
+      final expensesData = await _transactionService.getUserTotalExpenses(userId);
+
+      if (mounted) {
+        setState(() {
+          totalExpenses = expensesData.totalExpenses;
+          individualExpenses = expensesData.individualExpenses;
+          sharedExpenses = expensesData.sharedExpenses;
+          _isLoadingExpenses = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ Erro ao carregar despesas do usuário: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingExpenses = false;
+        });
       }
     }
   }
@@ -68,22 +101,6 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
     final loadTime = DateTime.now().millisecondsSinceEpoch - _pageLoadStartTime;
     AnalyticsService.trackPageView('home_group_screen');
     AnalyticsService.trackPageLoading('home_group_screen', loadTime);
-  }
-
-  void _calculateUserExpenses() {
-    double individualTotal = 0.0;
-    double sharedTotal = 0.0;
-
-    for (final group in _groups) {
-      if (group.totalTransactions != null) {
-        sharedTotal += group.totalTransactions!;
-      }
-    }
-
-    setState(() {
-      individualExpenses = individualTotal;
-      sharedExpenses = sharedTotal;
-    });
   }
 
   void _reloadState() async {
@@ -123,31 +140,42 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: SpecialInfoCard(
-                        "Total Geral",
-                        value: formatter.format(individualExpenses + sharedExpenses),
-                        description: "$userGroupsCount grupos ativos",
-                      ),
+                      child: _isLoadingExpenses
+                          ? const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(20.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : SpecialInfoCard(
+                              "Total Geral",
+                              value: formatter.format(totalExpenses),
+                              description: "$userGroupsCount grupos ativos",
+                            ),
                     ),
                   ],
                 ),
                 Row(
                   children: [
                     Expanded(
-                      child: InfoCard(
-                        icon: HugeIcons.strokeRoundedUser02,
-                        title: "Individuais",
-                        value: formatter.format(individualExpenses),
-                        colorOption: InfoCardColor.green,
-                      ),
+                      child: _isLoadingExpenses
+                          ? const SizedBox.shrink()
+                          : InfoCard(
+                              icon: HugeIcons.strokeRoundedUser02,
+                              title: "Individuais",
+                              value: formatter.format(individualExpenses),
+                              colorOption: InfoCardColor.green,
+                            ),
                     ),
                     Expanded(
-                      child: InfoCard(
-                        icon: HugeIcons.strokeRoundedUserMultiple02,
-                        title: "Compartilhados",
-                        value: formatter.format(sharedExpenses),
-                        colorOption: InfoCardColor.blue,
-                      ),
+                      child: _isLoadingExpenses
+                          ? const SizedBox.shrink()
+                          : InfoCard(
+                              icon: HugeIcons.strokeRoundedUserMultiple02,
+                              title: "Compartilhados",
+                              value: formatter.format(sharedExpenses),
+                              colorOption: InfoCardColor.blue,
+                            ),
                     ),
                   ],
                 ),

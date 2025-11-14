@@ -1,25 +1,25 @@
-import 'package:divide_ai/components/group/select_members_group.dart';
+import 'package:divide_ai/components/transaction/select_members_transactions.dart';
 import 'package:divide_ai/components/ui/button.dart';
 import 'package:divide_ai/components/ui/card_input.dart';
 import 'package:divide_ai/components/ui/custom_app_bar.dart';
 import 'package:divide_ai/models/data/user.dart';
-import 'package:divide_ai/models/data/group.dart';
 import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/models/data/transaction_request.dart';
 import 'package:divide_ai/services/analytics_service.dart';
+import 'package:divide_ai/services/group_service.dart';
 import 'package:divide_ai/services/transaction_service.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 class CreateTransactionScreen extends StatefulWidget {
-  final int groupId;
-  final int? transactionId; 
+  final String groupId;
+  final int? transactionId; // Adicionado para edição
 
   const CreateTransactionScreen({
     super.key,
     required this.groupId,
     this.transactionId,
-  }) : assert(groupId != 0, 'groupId cannot be zero');
+  });
 
   @override
   State<CreateTransactionScreen> createState() =>
@@ -31,27 +31,33 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
   final TextEditingController _valueController = TextEditingController();
   Set<int> _selectedParticipantIndexes = {};
   late final int _pageLoadStartTime;
-  late List<User> _groupParticipants;
-  late User _currentUser;
+
+  // ESTADOS E SERVIÇOS
+  final GroupService _groupService = GroupService();
+  final TransactionService _transactionService = TransactionService();
+
+  List<User> _groupParticipants = [];
+  String _groupName = '';
 
   bool _isEditing = false;
+  bool _isLoadingParticipants = true;
   bool _isLoadingData = false;
   Transaction? _currentTransaction;
 
-  final TransactionService _transactionService = TransactionService();
 
   @override
   void initState() {
     super.initState();
     _pageLoadStartTime = DateTime.now().millisecondsSinceEpoch;
-
     _isEditing = widget.transactionId != null;
 
-    _initializeGroupParticipants();
-
+    _loadGroupParticipants(); 
+    
+    // Se for edição, também carregamos os dados da transação
     if (_isEditing) {
       _loadTransactionData();
     } else {
+      // Se for criação, tentamos pré-selecionar o primeiro (que será o usuário logado)
       _selectedParticipantIndexes.add(0);
     }
 
@@ -60,22 +66,48 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
     });
   }
 
+  // NOVO: Carrega os membros do grupo via API
+  Future<void> _loadGroupParticipants() async {
+    try {
+      // Carrega os membros do grupo via API com estrutura completa
+      final groupUsersResponse = await _groupService.getGroupUsersWithDetails(widget.groupId);
+
+      if (mounted) {
+        setState(() {
+          _groupParticipants = groupUsersResponse.users;
+          _groupName = groupUsersResponse.groupName;
+          _isLoadingParticipants = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Erro ao carregar participantes: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingParticipants = false;
+        });
+      }
+    }
+  }
+  
+  // NOVO: Carrega dados da transação para edição
   Future<void> _loadTransactionData() async {
     if (widget.transactionId == null) return;
-    
+
     setState(() {
       _isLoadingData = true;
     });
 
     try {
       final transaction = await _transactionService.getTransactionById(widget.transactionId!);
-      
+
       if (mounted) {
         _nameController.text = transaction.description;
         _valueController.text = transaction.value.toString().replaceAll('.', ',');
-        
+
+        // CORRIGIDO: Mapeia IDs de participantes (int) para índices na lista reorganizada
+        // Converte int para String para comparar com User.id
         Set<int> initialIndexes = transaction.participantIds
-            .map((id) => _groupParticipants.indexWhere((u) => u.id == id))
+            .map((id) => _groupParticipants.indexWhere((u) => u.id == id.toString()))
             .where((index) => index != -1)
             .toSet();
 
@@ -91,29 +123,11 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
         setState(() {
           _isLoadingData = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Falha ao carregar dados para edição.")),
-        );
+        _showMessage('Falha ao carregar dados para edição.');
       }
     }
   }
 
-  void _initializeGroupParticipants() {
-    final group = groups.firstWhere((g) => g.id == widget.groupId);
-
-    _groupParticipants = group.participantIds
-        .map((id) => users.firstWhere((u) => u.id == id))
-        .toList();
-
-    _currentUser = users.first;
-
-    if (_groupParticipants.any((u) => u.id == _currentUser.id)) {
-      _groupParticipants.removeWhere((u) => u.id == _currentUser.id);
-      _groupParticipants.insert(0, _currentUser);
-    } else {
-      _groupParticipants.insert(0, _currentUser);
-    }
-  }
 
   void _trackPageLoad() {
     final loadTime = DateTime.now().millisecondsSinceEpoch - _pageLoadStartTime;
@@ -127,6 +141,7 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
     });
   }
 
+  // SUBSTITUI _addTransaction por _saveTransaction (POST/PUT unificado)
   void _saveTransaction() async {
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(_isEditing ? "Salvando alterações..." : "Adicionando despesa...")),
@@ -136,23 +151,24 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
 
     if (_nameController.text.trim().isEmpty) {
        ScaffoldMessenger.of(context).hideCurrentSnackBar();
-       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Por favor, insira o nome da despesa")),);
+       _showMessage("Por favor, insira o nome da despesa");
        return;
     }
 
     double? value = double.tryParse(_valueController.text.replaceAll(',', '.'));
     if (value == null || value <= 0) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Por favor, insira um valor válido")),);
+      _showMessage("Por favor, insira um valor válido");
       return;
     }
 
     if (_selectedParticipantIndexes.isEmpty) {
       ScaffoldMessenger.of(context).hideCurrentSnackBar();
-       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Selecione pelo menos um participante")),);
+       _showMessage("Selecione pelo menos um participante");
       return;
     }
 
+    // CORRIGIDO: Pega os IDs como String, conforme o modelo User
     final List<String> participantIds = _selectedParticipantIndexes
         .map((index) => _groupParticipants[index].id)
         .toList();
@@ -166,11 +182,13 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
 
     try {
       if (_isEditing && widget.transactionId != null) {
+        // PUT (EDIÇÃO)
         await _transactionService.updateTransaction(
           widget.transactionId!,
           transactionRequest,
         );
       } else {
+        // POST (CRIAÇÃO)
         await _transactionService.createTransaction(transactionRequest);
       }
 
@@ -182,13 +200,15 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
       debugPrint('Erro ao salvar transação via API: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(_isEditing ? "Falha ao salvar. Tente novamente." : "Falha ao adicionar despesa."),
-          ),
-        );
+        _showMessage(_isEditing ? "Falha ao salvar. Tente novamente." : "Falha ao adicionar despesa.");
       }
     }
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -196,14 +216,23 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
     final appBarTitle = _isEditing ? "Editar Despesa" : "Nova Despesa";
     final appBarDescription = _isEditing ? "Atualize as informações da transação" : "Insira as informações da sua nova despesa";
     final buttonText = _isEditing ? "Salvar Alterações" : "Adicionar Despesa";
-
-    if (_isEditing && _isLoadingData) {
+    
+    // Mostra loading se estiver carregando dados da transação OU participantes
+    if (_isLoadingParticipants || (_isEditing && _isLoadingData)) {
       return Scaffold(
         appBar: CustomAppBar(appBarTitle, description: appBarDescription),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
-    
+
+    // Se os participantes falharem ao carregar, impede a renderização do formulário
+    if (_groupParticipants.isEmpty) {
+        return Scaffold(
+        appBar: CustomAppBar(appBarTitle, description: "Erro ao carregar dados"),
+        body: const Center(child: Text("Não foi possível carregar os participantes do grupo.", style: TextStyle(color: Colors.white70))),
+      );
+    }
+
     return Scaffold(
       appBar: CustomAppBar(
         appBarTitle,
@@ -230,19 +259,17 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
               controller: _valueController,
             ),
             const SizedBox(height: 20),
-            SelectMembersGroup(
+            SelectMembersTransactions(
               participants: _groupParticipants,
-              mainUser: _currentUser,
-              canDeselectMainUser: true,
               onSelectionChanged: _onParticipantsChanged,
-              initialSelectedIndexes: _selectedParticipantIndexes, 
+              initialSelectedIndexes: _selectedParticipantIndexes,
             ),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: Button(
                 text: buttonText,
-                onPressed: _saveTransaction,
+                onPressed: _saveTransaction, // MÉTODO UNIFICADO
                 size: ButtonSize.large,
               ),
             ),
