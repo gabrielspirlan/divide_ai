@@ -63,7 +63,8 @@ class HomeGroupScreenState extends State<HomeGroupScreen> {
       await _loadUserExpenses(userId);
     } catch (e) {
       debugPrint('❌ Erro ao carregar grupos: $e');
-      if (mounted) {
+      // Não exibe SnackBar se for erro de sessão (usuário não logado)
+      if (mounted && !e.toString().contains('Usuário não encontrado na sessão')) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Erro ao carregar grupos: $e')),
         );

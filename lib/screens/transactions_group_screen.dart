@@ -6,6 +6,7 @@ import 'package:divide_ai/components/ui/special_info_card.dart';
 import 'package:divide_ai/models/data/group_api_model.dart';
 import 'package:divide_ai/models/data/transaction.dart';
 import 'package:divide_ai/screens/create_transaction_screen.dart';
+import 'package:divide_ai/screens/create_group_screen.dart';
 import 'package:divide_ai/screens/bill_group_screen.dart';
 import 'package:divide_ai/services/analytics_service.dart';
 import 'package:divide_ai/services/transaction_service.dart';
@@ -87,9 +88,32 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            BillGroupScreen(groupId: int.parse(widget.group.id!)),
+            BillGroupScreen(groupId: widget.group.id!),
       ),
     );
+  }
+
+  void _navigateToEditGroup() async {
+    AnalyticsService.trackEvent(
+      elementId: 'edit_group_button',
+      eventType: 'CLICK',
+      page: 'transactions_group_screen',
+    );
+
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            CreateGroupScreen(groupId: widget.group.id),
+      ),
+    );
+
+    // Se houve alteração, recarrega a tela
+    if (result == true && mounted) {
+      // Aqui você pode adicionar lógica para recarregar os dados do grupo
+      // Por enquanto, apenas volta para a tela anterior
+      Navigator.of(context).pop(true);
+    }
   }
 
   @override
@@ -102,7 +126,7 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
     int totalItems = _groupTransactions.length;
 
     for (final transaction in _groupTransactions) {
-      if (transaction.participantIds.length == 1) {
+      if (transaction.participants.length == 1) {
         individualTotal += transaction.value;
       } else {
         sharedTotal += transaction.value;
@@ -157,6 +181,19 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
                         ],
                       ),
                     ],
+                  ),
+                ),
+                // Botão de editar grupo
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: Button(
+                      text: "Editar Grupo",
+                      icon: HugeIcons.strokeRoundedPencilEdit02,
+                      onPressed: _navigateToEditGroup,
+                      size: ButtonSize.medium,
+                    ),
                   ),
                 ),
                 Padding(
@@ -229,7 +266,7 @@ class TransactionsGroupScreenState extends State<TransactionsGroupScreen> {
                           MaterialPageRoute(
                             builder: (context) => CreateTransactionScreen(
                               groupId: widget.group.id!,
-                              transactionId: transaction.id,
+                              transaction: transaction, // Passa o objeto completo
                             ),
                           ),
                         );

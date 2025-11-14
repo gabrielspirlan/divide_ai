@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:divide_ai/models/data/group_api_model.dart';
 import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/data/group_users_response.dart';
+import 'package:divide_ai/models/data/group_bill_response.dart';
 import 'package:divide_ai/services/session_service.dart';
 import 'package:divide_ai/config/app_config.dart';
 import 'package:divide_ai/services/http_request.dart';
@@ -112,6 +113,104 @@ class GroupService {
       }
     } catch (e) {
       debugPrint('Erro ao criar grupo: $e');
+      rethrow;
+    }
+  }
+
+  // GET /groups/{id}/bill - Busca a divisão de comanda do grupo
+  Future<GroupBillResponse> getGroupBill(String groupId) async {
+    try {
+      final url = Uri.parse('$_baseUrl/groups/$groupId/bill');
+
+      final response = await authenticatedHttpClient.get(url);
+
+      debugPrint('Response status getGroupBill: ${response.statusCode}');
+      debugPrint('Response body getGroupBill: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> json = jsonDecode(utf8.decode(response.bodyBytes));
+        return GroupBillResponse.fromJson(json);
+      } else {
+        throw Exception(
+          'Falha ao carregar divisão da comanda: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      debugPrint('Erro em getGroupBill: $e');
+      rethrow;
+    }
+  }
+
+  // GET /groups/{id} - Busca um grupo específico
+  Future<GroupApiModel> getGroupById(String groupId) async {
+    try {
+      final url = Uri.parse('$_baseUrl/groups/$groupId');
+
+      final response = await authenticatedHttpClient.get(url);
+
+      debugPrint('Response status getGroupById: ${response.statusCode}');
+      debugPrint('Response body getGroupById: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> json = jsonDecode(utf8.decode(response.bodyBytes));
+        return GroupApiModel.fromJson(json);
+      } else {
+        throw Exception(
+          'Falha ao carregar grupo: ${response.statusCode}',
+        );
+      }
+    } catch (e) {
+      debugPrint('Erro em getGroupById: $e');
+      rethrow;
+    }
+  }
+
+  // PUT /groups/{id} - Atualiza um grupo
+  Future<void> updateGroup(String groupId, GroupApiModel group) async {
+    try {
+      final url = Uri.parse('$_baseUrl/groups/$groupId');
+
+      final body = jsonEncode(group.toJson());
+
+      debugPrint('Atualizando grupo $groupId com body: $body');
+
+      final response = await authenticatedHttpClient.put(
+        url,
+        body: body,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      debugPrint('Response status updateGroup: ${response.statusCode}');
+      debugPrint('Response body updateGroup: ${response.body}');
+
+      if (response.statusCode != 201 && response.statusCode != 204) {
+        throw Exception(
+          'Erro ao atualizar grupo: ${response.statusCode} → ${response.body}',
+        );
+      }
+    } catch (e) {
+      debugPrint('Erro ao atualizar grupo: $e');
+      rethrow;
+    }
+  }
+
+  // DELETE /groups/{id} - Exclui um grupo
+  Future<void> deleteGroup(String groupId) async {
+    try {
+      final url = Uri.parse('$_baseUrl/groups/$groupId');
+
+      final response = await authenticatedHttpClient.delete(url);
+
+      debugPrint('Response status deleteGroup: ${response.statusCode}');
+      debugPrint('Response body deleteGroup: ${response.body}');
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception(
+          'Erro ao excluir grupo: ${response.statusCode} → ${response.body}',
+        );
+      }
+    } catch (e) {
+      debugPrint('Erro ao excluir grupo: $e');
       rethrow;
     }
   }

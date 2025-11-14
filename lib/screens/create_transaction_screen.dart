@@ -13,12 +13,12 @@ import 'package:hugeicons/hugeicons.dart';
 
 class CreateTransactionScreen extends StatefulWidget {
   final String groupId;
-  final int? transactionId; // Adicionado para edição
+  final Transaction? transaction; // Recebe o objeto completo para edição
 
   const CreateTransactionScreen({
     super.key,
     required this.groupId,
-    this.transactionId,
+    this.transaction,
   });
 
   @override
@@ -49,21 +49,24 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
   void initState() {
     super.initState();
     _pageLoadStartTime = DateTime.now().millisecondsSinceEpoch;
-    _isEditing = widget.transactionId != null;
+    _isEditing = widget.transaction != null;
 
-    _loadGroupParticipants(); 
-    
-    // Se for edição, também carregamos os dados da transação
-    if (_isEditing) {
-      _loadTransactionData();
-    } else {
-      // Se for criação, tentamos pré-selecionar o primeiro (que será o usuário logado)
-      _selectedParticipantIndexes.add(0);
-    }
+    _loadData();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _trackPageLoad();
     });
+  }
+
+  // NOVO: Carrega os dados necessários (participantes e transação se for edição)
+  Future<void> _loadData() async {
+    // Primeiro carrega os participantes
+    await _loadGroupParticipants();
+
+    // Depois, se for edição, carrega os dados da transação
+    if (_isEditing && _groupParticipants.isNotEmpty) {
+      await _loadTransactionData();
+    }
   }
 
   // NOVO: Carrega os membros do grupo via API
@@ -89,27 +92,41 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
     }
   }
   
-  // NOVO: Carrega dados da transação para edição
+  // NOVO: Carrega dados da transação para edição (usando objeto recebido)
   Future<void> _loadTransactionData() async {
-    if (widget.transactionId == null) return;
+    if (widget.transaction == null) return;
 
     setState(() {
       _isLoadingData = true;
     });
 
     try {
-      final transaction = await _transactionService.getTransactionById(widget.transactionId!);
+      final transaction = widget.transaction!;
 
       if (mounted) {
         _nameController.text = transaction.description;
-        _valueController.text = transaction.value.toString().replaceAll('.', ',');
+        _valueController.text = transaction.value.toStringAsFixed(2).replaceAll('.', ',');
 
-        // CORRIGIDO: Mapeia IDs de participantes (int) para índices na lista reorganizada
-        // Converte int para String para comparar com User.id
-        Set<int> initialIndexes = transaction.participantIds
-            .map((id) => _groupParticipants.indexWhere((u) => u.id == id.toString()))
-            .where((index) => index != -1)
-            .toSet();
+        // Mapeia os participantIds para os índices na lista de participantes
+        Set<int> initialIndexes = {};
+
+        debugPrint('=== DEBUG LOAD TRANSACTION ===');
+        debugPrint('Transaction participants: ${transaction.participants}');
+        debugPrint('Group participants count: ${_groupParticipants.length}');
+
+        for (int i = 0; i < _groupParticipants.length; i++) {
+          final user = _groupParticipants[i];
+          debugPrint('User[$i]: id=${user.id}, name=${user.name}');
+
+          // Compara diretamente os IDs como String
+          if (transaction.participants.contains(user.id)) {
+            initialIndexes.add(i);
+            debugPrint('  -> Matched! Adding index $i');
+          }
+        }
+
+        debugPrint('Final mapped indexes: $initialIndexes');
+        debugPrint('=== END DEBUG ===');
 
         setState(() {
           _currentTransaction = transaction;
@@ -181,10 +198,10 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
     );
 
     try {
-      if (_isEditing && widget.transactionId != null) {
+      if (_isEditing && widget.transaction != null) {
         // PUT (EDIÇÃO)
         await _transactionService.updateTransaction(
-          widget.transactionId!,
+          widget.transaction!.id,
           transactionRequest,
         );
       } else {
@@ -194,7 +211,7 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
-        Navigator.of(context).pop(true); 
+        Navigator.of(context).pop(true);
       }
     } catch (e) {
       debugPrint('Erro ao salvar transação via API: $e');
@@ -209,6 +226,44 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
+  }
+
+  Future<void> _deleteTransaction() async {
+    // Confirmação antes de excluir
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Confirmar Exclusão'),
+        content: const Text('Tem certeza que deseja excluir esta despesa? Esta ação não pode ser desfeita.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('Excluir'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || widget.transaction == null) return;
+
+    try {
+      await _transactionService.deleteTransaction(widget.transaction!.id);
+
+      if (mounted) {
+        _showMessage('Despesa excluída com sucesso!');
+        Navigator.of(context).pop(true); // Retorna true para indicar que houve alteração
+      }
+    } catch (e) {
+      debugPrint('Erro ao excluir transação: $e');
+      if (mounted) {
+        _showMessage('Erro ao excluir despesa. Tente novamente.');
+      }
+    }
   }
 
   @override
@@ -273,7 +328,33 @@ class CreateTransactionScreenState extends State<CreateTransactionScreen> {
                 size: ButtonSize.large,
               ),
             ),
+            // Botão de excluir (apenas em modo de edição)
+            if (_isEditing) ...[
               const SizedBox(height: 10),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: _deleteTransaction,
+                  icon: const Icon(Icons.delete_outline, color: Colors.red),
+                  label: const Text(
+                    'Excluir Despesa',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.red, width: 2),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 10),
           ],
         ),
       ),

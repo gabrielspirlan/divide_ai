@@ -1,4 +1,5 @@
 import 'package:divide_ai/components/ui/button.dart';
+import 'package:divide_ai/components/ui/custom_app_bar.dart';
 import 'package:divide_ai/components/ui/input.dart'; 
 import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/models/data/user_request.dart';
@@ -127,14 +128,9 @@ class _EditUserScreenState extends State<EditUserScreen> {
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
-      appBar: AppBar(
-        title: const Text('Editar Perfil'), // Título alterado
-        backgroundColor: theme.colorScheme.background,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+      appBar: CustomAppBar(
+        "Editar informações",
+        description: "Edite suas informações",
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator()) // Mostra loading ao carregar dados

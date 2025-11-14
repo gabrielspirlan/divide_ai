@@ -22,6 +22,14 @@ class TransactionService {
         final Map<String, dynamic> responseData = jsonDecode(response.body);
         final List<dynamic> jsonList = responseData['content'] ?? [];
 
+        debugPrint('=== DEBUG GET GROUP TRANSACTIONS ===');
+        debugPrint('Response body: ${response.body}');
+        debugPrint('Number of transactions: ${jsonList.length}');
+        if (jsonList.isNotEmpty) {
+          debugPrint('First transaction JSON: ${jsonList[0]}');
+        }
+        debugPrint('=== END DEBUG ===');
+
         return jsonList.map((json) => Transaction.fromJson(json)).toList();
       } else {
         throw Exception(
@@ -86,7 +94,7 @@ class TransactionService {
 
   // 4. PUT /transactions/{id}
   Future<Transaction> updateTransaction(
-    int id,
+    String id, // MUDADO DE int PARA String
     TransactionRequest transactionRequest,
   ) async {
     try {
@@ -96,9 +104,10 @@ class TransactionService {
       final response = await authenticatedHttpClient.put(
         url,
         body: jsonEncode(transactionRequest.toJson()),
+        headers: {'Content-Type': 'application/json'},
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         final Map<String, dynamic> json = jsonDecode(response.body);
         return Transaction.fromJson(json);
       } else {
@@ -120,11 +129,15 @@ class TransactionService {
       // USANDO CLIENTE AUTENTICADO
       final response = await authenticatedHttpClient.get(url);
 
-      debugPrint('Response status getUserTotalExpenses: ${response.statusCode}');
+      debugPrint(
+        'Response status getUserTotalExpenses: ${response.statusCode}',
+      );
       debugPrint('Response body getUserTotalExpenses: ${response.body}');
 
       if (response.statusCode == 200) {
-        final Map<String, dynamic> json = jsonDecode(utf8.decode(response.bodyBytes));
+        final Map<String, dynamic> json = jsonDecode(
+          utf8.decode(response.bodyBytes),
+        );
         return UserExpensesResponse.fromJson(json);
       } else {
         throw Exception(
@@ -133,6 +146,29 @@ class TransactionService {
       }
     } catch (e) {
       debugPrint('Erro em getUserTotalExpenses: $e');
+      rethrow;
+    }
+  }
+
+  // 6. DELETE /transactions/{id}
+  Future<void> deleteTransaction(String id) async {
+    // MUDADO DE int PARA String
+    try {
+      final url = Uri.parse('$_baseUrl/transactions/$id');
+
+      // USANDO CLIENTE AUTENTICADO
+      final response = await authenticatedHttpClient.delete(url);
+
+      debugPrint('Response status deleteTransaction: ${response.statusCode}');
+      debugPrint('Response body deleteTransaction: ${response.body}');
+
+      if (response.statusCode != 200 && response.statusCode != 204) {
+        throw Exception(
+          'Erro ao excluir transação: ${response.statusCode} → ${response.body}',
+        );
+      }
+    } catch (e) {
+      debugPrint('Erro ao excluir transação: $e');
       rethrow;
     }
   }
