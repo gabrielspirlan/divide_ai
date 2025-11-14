@@ -3,9 +3,12 @@ import 'package:divide_ai/models/data/user.dart';
 import 'package:divide_ai/components/users/user_card.dart';
 import 'package:divide_ai/components/ui/custom_app_bar.dart';
 import 'package:divide_ai/screens/analytics_screen.dart';
+import 'package:divide_ai/screens/edit_user_screen.dart'; 
+import 'package:divide_ai/screens/login_screen.dart';
 import 'package:divide_ai/services/analytics_service.dart';
 import 'package:divide_ai/services/session_service.dart';
-import 'package:divide_ai/screens/login_screen.dart';
+import 'package:divide_ai/services/user_service.dart';
+// REMOVIDO: import 'package:divide_ai/services/session_service.dart'; (duplicado)
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -16,14 +19,44 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   late final int _pageLoadStartTime;
+  
+  // NOVO ESTADO: Usuário logado
+  User? _loggedUser;
+  bool _isLoadingUser = true;
 
   @override
   void initState() {
     super.initState();
     _pageLoadStartTime = DateTime.now().millisecondsSinceEpoch;
+    _loadLoggedUser(); // Inicia o carregamento do usuário
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _trackPageLoad();
     });
+  }
+
+  // NOVO MÉTODO: Carrega o usuário logado via API
+  Future<void> _loadLoggedUser() async {
+    try {
+      final user = await UserService().getLoggedUser();
+      if (mounted) {
+        setState(() {
+          _loggedUser = user;
+          _isLoadingUser = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Erro ao carregar usuário logado: $e');
+      if (mounted) {
+        setState(() {
+          _isLoadingUser = false;
+        });
+      }
+      // Se falhar, pode ser um token inválido, forçar logout
+      if (e.toString().contains('Nenhum usuário logado')) {
+        await SessionService.clearSession();
+        if (mounted) _navigateToLoginScreen();
+      }
+    }
   }
 
   void _trackPageLoad() {
@@ -31,13 +64,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
     AnalyticsService.trackPageView('settings_screen');
     AnalyticsService.trackPageLoading('settings_screen', loadTime);
   }
+  
+  // CORRIGIDO: Retorna Future<void> e é assíncrono (async)
+  Future<void> _navigateToLoginScreen() async {
+     Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
+  // NOVO MÉTODO: Navegação para a edição
+  void _navigateToEditUser() async {
+    // Rastreamento opcional (se UserCard não rastrear o clique)
+    AnalyticsService.trackEvent(
+      elementId: 'user_card_profile',
+      eventType: 'CLICK',
+      page: 'settings_screen',
+    );
+    
+    // Navegação para a tela de edição
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const EditUserScreen(), 
+      ),
+    );
+    
+    // Se a edição foi bem-sucedida, recarrega os dados para atualizar o UserCard
+    if (result == true && mounted) {
+      _loadLoggedUser();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final user = users.first;
     final theme = Theme.of(context);
     final cardBackground = theme.colorScheme.onBackground;
     final iconColor = theme.colorScheme.onSurfaceVariant;
+
+    // Se estiver carregando ou o usuário não for encontrado
+    if (_isLoadingUser || _loggedUser == null) {
+      return Scaffold(
+        backgroundColor: theme.colorScheme.background,
+        appBar: CustomAppBar("Perfil", description: "Gerencie sua conta"),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    
+    // Usa o usuário carregado
+    final user = _loggedUser!; 
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
@@ -50,9 +126,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // USER CARD: Agora usa o usuário carregado e navega para edição
             UserCard(
               user,
-              onTap: () {},
+              onTap: _navigateToEditUser, 
             ),
             const SizedBox(height: 20),
 
@@ -78,7 +155,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     iconColor: iconColor,
                     elementId: 'informacoes_pessoais_tile',
                     pageName: 'settings_screen',
-                    onTap: () {},
+                    // Redireciona o tile de Informações Pessoais para a tela de edição
+                    onTap: _navigateToEditUser, 
                   ),
                   Divider(color: theme.colorScheme.onSurface.withOpacity(0.2), height: 1),
                   _SettingsListTile(
@@ -126,7 +204,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             const SizedBox(height: 20),
 
-            // NOVA SEÇÃO: CONTA / LOGOUT
+            // NOVA SEÇÃO: CONTA / LOGOUT 
             Text(
               "Conta",
               style: theme.textTheme.titleMedium?.copyWith(
@@ -141,7 +219,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               child: Column(
                 children: [
-                  _SettingsListTile(
+                   _SettingsListTile(
                     icon: Icons.logout,
                     title: "Sair da Conta",
                     subtitle: "Encerra a sessão atual",
@@ -149,15 +227,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     elementId: 'logout_tile',
                     pageName: 'settings_screen',
                     onTap: () async {
-                      await SessionService.clearSession(); // limpa sessão
+                      await SessionService.clearSession(); 
                       if (context.mounted) {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LoginScreen(),
-                          ),
-                          (route) => false, // remove todas as telas anteriores
-                        );
+                        // Chama o método que navega após a limpeza
+                        _navigateToLoginScreen(); 
                       }
                     },
                   ),

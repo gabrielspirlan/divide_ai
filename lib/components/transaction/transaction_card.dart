@@ -1,5 +1,4 @@
 import 'package:divide_ai/models/data/transaction.dart';
-import 'package:divide_ai/models/data/user.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:hugeicons/hugeicons.dart';
@@ -12,13 +11,15 @@ class TransactionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final participantNames = transaction.participantIds
-        .map((id) => users.firstWhere((u) => u.id == id).name)
-        .toList();
+    // CORRIGIDO: Usa o campo 'participantNames' que vem preenchido da API
+    final participantNames = transaction.participantNames;
 
-    final TransactionType type = transaction.participantIds.length == 1
-        ? TransactionType.individual
-        : TransactionType.compartilhado;
+    // CORRIGIDO: Determina o tipo baseado no valuePerPerson
+    // Se valuePerPerson for 0 ou null, é INDIVIDUAL
+    // Se valuePerPerson tiver valor, é COMPARTILHADO
+    final TransactionType type = transaction.valuePerPerson > 0
+        ? TransactionType.compartilhado
+        : TransactionType.individual;
 
     final IconData icon = type == TransactionType.individual
         ? HugeIcons.strokeRoundedUserCheck02
@@ -49,19 +50,20 @@ class TransactionCard extends StatelessWidget {
             TransactionIcon(backgroundColor, textColor, icon),
             Expanded(
               child: Column(
-                spacing: 3,
+                // spacing: 3, // Assumindo extensão ou widget customizado
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   TransactionTitle(transaction.description),
 
-                  TransactionParticipants(type, participantNames),
+                  // AGORA RECEBE OS NOMES DIRETAMENTE
+                  TransactionParticipants(type, participantNames), 
                 ],
               ),
             ),
             TransactionValueAndBadge(
               transaction.value,
+              transaction.valuePerPerson,
               type,
-              participantNames,
               badgeColor,
             ),
           ],
@@ -99,7 +101,7 @@ class TransactionIcon extends StatelessWidget {
 
 class TransactionParticipants extends StatelessWidget {
   final TransactionType _type;
-  final List<String> _participants;
+  final List<String> _participants; // Agora armazena nomes completos da API
 
   const TransactionParticipants(this._type, this._participants, {super.key});
 
@@ -155,15 +157,15 @@ class TransactionDate extends StatelessWidget {
 }
 
 class TransactionValueAndBadge extends StatelessWidget {
-  final double _value;
+  final double _totalValue;
+  final double _valuePerPerson;
   final TransactionType _type;
-  final List<String> _participants;
   final Color _badgeColor;
 
   const TransactionValueAndBadge(
-    this._value,
+    this._totalValue,
+    this._valuePerPerson,
     this._type,
-    this._participants,
     this._badgeColor, {
     super.key,
   });
@@ -175,15 +177,13 @@ class TransactionValueAndBadge extends StatelessWidget {
         : "Compartilhado";
 
     final formatter = NumberFormat.simpleCurrency(locale: 'pt_BR');
-    final valuePerPerson = _type == TransactionType.compartilhado
-        ? _value / _participants.length
-        : _value;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
 
       children: [
         Text(
-          formatter.format(_value),
+          formatter.format(_totalValue),
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
@@ -192,7 +192,7 @@ class TransactionValueAndBadge extends StatelessWidget {
         ),
         if (_type == TransactionType.compartilhado)
           Text(
-            "${formatter.format(valuePerPerson)} p/pessoa",
+            "${formatter.format(_valuePerPerson)} p/pessoa",
             style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
         Container(

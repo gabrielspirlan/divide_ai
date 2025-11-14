@@ -2,21 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:divide_ai/components/ui/select_member.dart';
 import 'package:hugeicons/hugeicons.dart';
 import 'package:divide_ai/models/data/user.dart';
+import 'package:divide_ai/services/user_service.dart';
+import 'package:divide_ai/services/session_service.dart';
 
 class SelectMembersGroup extends StatefulWidget {
-  final List<User> participants;
-  final User mainUser;
   final Set<int>? initialSelectedIndexes;
-  final Function(Set<int>)? onSelectionChanged;
-  final bool canDeselectMainUser;
+  final Function(Set<int>, List<String>)? onSelectionChanged;
 
   const SelectMembersGroup({
     Key? key,
-    required this.participants,
-    required this.mainUser,
     this.initialSelectedIndexes,
     this.onSelectionChanged,
-    this.canDeselectMainUser = false,
   }) : super(key: key);
 
   @override
@@ -24,35 +20,72 @@ class SelectMembersGroup extends StatefulWidget {
 }
 
 class _SelectMembersGroupState extends State<SelectMembersGroup> {
+  final UserService _userService = UserService();
+
   late Set<int> selectedIndexes;
-  late List<User> orderedParticipants;
+  List<User> orderedParticipants = [];
+  bool isLoading = true;
+  String? currentUserId;
 
   @override
   void initState() {
     super.initState();
-
-    orderedParticipants = _organizeParticipants();
-
-    selectedIndexes = widget.initialSelectedIndexes ?? {0};
-
-    if (!widget.canDeselectMainUser) {
-      selectedIndexes.add(0);
-    }
-
-    // Notificar a seleção inicial
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      widget.onSelectionChanged?.call(selectedIndexes);
-    });
+    _loadUsers();
   }
 
-  List<User> _organizeParticipants() {
+  Future<void> _loadUsers() async {
+    try {
+      // Busca o ID do usuário logado
+      currentUserId = await SessionService.getUserId();
+
+      // Busca todos os usuários da API
+      final allUsers = await _userService.getAllUsersPaginated();
+
+      if (mounted) {
+        setState(() {
+          orderedParticipants = _organizeParticipants(allUsers);
+
+          // Inicializa com o usuário logado sempre selecionado (índice 0)
+          selectedIndexes = widget.initialSelectedIndexes ?? {0};
+          selectedIndexes.add(
+            0,
+          ); // Garante que o usuário logado está selecionado
+
+          isLoading = false;
+        });
+
+        // Notificar a seleção inicial
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          final selectedUserIds = selectedIndexes
+              .map((index) => orderedParticipants[index].id)
+              .toList();
+          widget.onSelectionChanged?.call(selectedIndexes, selectedUserIds);
+        });
+      }
+    } catch (e) {
+      debugPrint('Erro ao carregar usuários: $e');
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
+    }
+  }
+
+  List<User> _organizeParticipants(List<User> users) {
     final List<User> organized = [];
 
-    organized.add(widget.mainUser);
+    // Encontra o usuário logado e coloca em primeiro
+    final currentUser = users.firstWhere(
+      (user) => user.id == currentUserId,
+      orElse: () => users.first,
+    );
+    organized.add(currentUser);
 
-    for (final participant in widget.participants) {
-      if (participant.id != widget.mainUser.id) {
-        organized.add(participant);
+    // Adiciona os demais usuários
+    for (final user in users) {
+      if (user.id != currentUser.id) {
+        organized.add(user);
       }
     }
 
@@ -61,7 +94,8 @@ class _SelectMembersGroupState extends State<SelectMembersGroup> {
 
   void _onSelectionChanged(int index) {
     setState(() {
-      if (index == 0 && !widget.canDeselectMainUser) {
+      // O usuário logado (índice 0) não pode ser desmarcado
+      if (index == 0) {
         return;
       }
 
@@ -72,7 +106,10 @@ class _SelectMembersGroupState extends State<SelectMembersGroup> {
       }
     });
 
-    widget.onSelectionChanged?.call(selectedIndexes);
+    final selectedUserIds = selectedIndexes
+        .map((index) => orderedParticipants[index].id)
+        .toList();
+    widget.onSelectionChanged?.call(selectedIndexes, selectedUserIds);
   }
 
   List<User> getSelectedUsers() {
@@ -87,7 +124,7 @@ class _SelectMembersGroupState extends State<SelectMembersGroup> {
       margin: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.onBackground,
+        color: Theme.of(context).colorScheme.surfaceContainer,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -121,36 +158,57 @@ class _SelectMembersGroupState extends State<SelectMembersGroup> {
 
           const SizedBox(height: 12),
 
-          // Lista de usuários
-          Column(
-            children: List.generate(orderedParticipants.length, (index) {
-              final user = orderedParticipants[index];
-              return SelectMember(
-                name: user.name,
-                email: user.email,
-                isYou: index == 0, // O primeiro sempre é o usuário principal
-                isSelected: selectedIndexes.contains(index),
-                onTap: () => _onSelectionChanged(index),
-              );
-            }),
-          ),
+          // Loading ou Lista de usuários
+          if (isLoading)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20.0),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          else if (orderedParticipants.isEmpty)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text(
+                  "Nenhum usuário encontrado",
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onPrimaryFixed,
+                  ),
+                ),
+              ),
+            )
+          else
+            Column(
+              children: List.generate(orderedParticipants.length, (index) {
+                final user = orderedParticipants[index];
+                return SelectMember(
+                  name: user.name,
+                  email: user.email,
+                  isYou: index == 0, // O primeiro sempre é o usuário logado
+                  isSelected: selectedIndexes.contains(index),
+                  onTap: () => _onSelectionChanged(index),
+                );
+              }),
+            ),
 
           const SizedBox(height: 14),
 
           // Rodapé
-          Row(
-            children: [
-              SizedBox(width: SelectMember.checkboxColumnWidth),
-              const SizedBox(width: 8),
-              Text(
-                "${selectedIndexes.length} membro(s) selecionado(s)",
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onPrimaryFixed,
-                  fontWeight: FontWeight.w500,
+          if (!isLoading)
+            Row(
+              children: [
+                SizedBox(width: SelectMember.checkboxColumnWidth),
+                const SizedBox(width: 8),
+                Text(
+                  "${selectedIndexes.length} membro(s) selecionado(s)",
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onPrimaryFixed,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
         ],
       ),
     );

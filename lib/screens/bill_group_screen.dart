@@ -1,16 +1,14 @@
-import 'package:divide_ai/components/transaction/bill_card.dart';
-import 'package:divide_ai/components/ui/custom_app_bar.dart';
-import 'package:divide_ai/components/ui/special_info_card.dart';
-import 'package:divide_ai/models/components/bill.dart';
-import 'package:divide_ai/models/data/group.dart';
-import 'package:divide_ai/models/data/user.dart';
-import 'package:divide_ai/models/data/transaction.dart';
-import 'package:divide_ai/services/analytics_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:divide_ai/components/transaction/user_bill_card.dart';
+import 'package:divide_ai/components/ui/custom_app_bar.dart';
+import 'package:divide_ai/components/ui/special_info_card.dart';
+import 'package:divide_ai/models/data/group_bill_response.dart';
+import 'package:divide_ai/services/analytics_service.dart';
+import 'package:divide_ai/services/group_service.dart';
 
 class BillGroupScreen extends StatefulWidget {
-  final int groupId;
+  final String groupId;
 
   const BillGroupScreen({super.key, required this.groupId});
 
@@ -20,13 +18,16 @@ class BillGroupScreen extends StatefulWidget {
 
 class _BillGroupScreenState extends State<BillGroupScreen> {
   late final int _pageLoadStartTime;
-  List<Bill> participantBills = [];
+  final GroupService _groupService = GroupService();
+  GroupBillResponse? _billData;
+  bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
     _pageLoadStartTime = DateTime.now().millisecondsSinceEpoch;
-    _calculateParticipantBills();
+    _loadBillData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _trackPageLoad();
     });
@@ -38,101 +39,102 @@ class _BillGroupScreenState extends State<BillGroupScreen> {
     AnalyticsService.trackPageLoading('bill_group_screen', loadTime);
   }
 
-  void _calculateParticipantBills() {
-    final group = groups.firstWhere((g) => g.id == widget.groupId);
-    final groupTransactions = transactions
-        .where((t) => t.groupId == widget.groupId)
-        .toList();
+  Future<void> _loadBillData() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
 
-    final participants = group.participantIds
-        .map((id) => users.firstWhere((u) => u.id == id))
-        .toList();
+      final billData = await _groupService.getGroupBill(widget.groupId);
 
-    List<Bill> bills = [];
-
-    for (final participant in participants) {
-      double individualTotal = 0.0;
-      double sharedTotal = 0.0;
-
-      for (final transaction in groupTransactions) {
-        if (transaction.participantIds.contains(participant.id)) {
-          if (transaction.participantIds.length == 1) {
-            individualTotal += transaction.value;
-          } else {
-            sharedTotal +=
-                transaction.value / transaction.participantIds.length;
-          }
-        }
+      if (mounted) {
+        setState(() {
+          _billData = billData;
+          _isLoading = false;
+        });
       }
-
-      bills.add(
-        Bill(
-          participant.name,
-          valueIndividual: individualTotal,
-          valueCompartilhado: sharedTotal,
-        ),
-      );
+    } catch (e) {
+      debugPrint('❌ Erro ao carregar divisão da comanda: $e');
+      if (mounted) {
+        setState(() {
+          _errorMessage = 'Erro ao carregar divisão da comanda: $e';
+          _isLoading = false;
+        });
+      }
     }
-
-    setState(() {
-      participantBills = bills;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final group = groups.firstWhere((g) => g.id == widget.groupId);
-    final groupTransactions = transactions
-        .where((t) => t.groupId == widget.groupId)
-        .toList();
-
-    double totalValue = 0.0;
-    double totalIndividual = 0.0;
-    double totalShared = 0.0;
-
-    for (final transaction in groupTransactions) {
-      totalValue += transaction.value;
-      if (transaction.participantIds.length == 1) {
-        totalIndividual += transaction.value;
-      } else {
-        totalShared += transaction.value;
-      }
-    }
-
     final formatter = NumberFormat.simpleCurrency(locale: 'pt_BR');
 
     return Scaffold(
-      appBar: CustomAppBar("Divisão da comanda", description: group.name),
-      body: ListView(
-        padding: EdgeInsets.all(10),
-        children: [
-          SpecialInfoCard(
-            "Total da comanda",
-            value: formatter.format(totalValue),
-            description:
-                "Individual: ${formatter.format(totalIndividual)} - Compartilhado: ${formatter.format(totalShared)}",
-          ),
-
-          SizedBox(height: 10),
-
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            child: Text(
-              "Quanto cada um deve pagar",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
-            ),
-          ),
-
-          ...participantBills.map((bill) {
-            return Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: BillCard(bill),
-            );
-          }),
-
-          SizedBox(height: 20),
-        ],
+      appBar: CustomAppBar(
+        "Divisão da comanda",
+        description: _billData?.groupName ?? "Carregando...",
       ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : _errorMessage != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(
+                          Icons.error_outline,
+                          size: 64,
+                          color: Colors.red,
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _errorMessage!,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _loadBillData,
+                          child: const Text("Tentar novamente"),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : _billData == null
+                  ? const Center(
+                      child: Text("Nenhum dado disponível"),
+                    )
+                  : ListView(
+                      padding: const EdgeInsets.all(10),
+                      children: [
+                        SpecialInfoCard(
+                          "Total da comanda",
+                          value: formatter.format(_billData!.totalExpenses),
+                          description:
+                              "Individual: ${formatter.format(_billData!.totalIndividualExpenses)} - Compartilhado: ${formatter.format(_billData!.totalSharedExpenses)}",
+                        ),
+                        const SizedBox(height: 10),
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                          child: Text(
+                            "Quanto cada um deve pagar",
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                          ),
+                        ),
+                        ..._billData!.userBills.map((userBill) {
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: UserBillCard(userBill),
+                          );
+                        }),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
     );
   }
 }
