@@ -10,18 +10,23 @@ class GroupCard extends StatelessWidget {
 
   const GroupCard(this.group, {super.key, this.onTap});
 
-  // Converte cor em string ("#RRGGBB") para Color
+
   Color _parseColor(String hexColor) {
     hexColor = hexColor.replaceFirst('#', '');
     if (hexColor.length == 6) hexColor = 'FF$hexColor';
     return Color(int.parse(hexColor, radix: 16));
   }
 
+  // Extrai apenas o primeiro nome de cada participante
+  String _getFirstName(String fullName) {
+    return fullName.trim().split(' ').first;
+  }
+
   @override
   Widget build(BuildContext context) {
     final participantsShow = (group.participantNames ?? []).isEmpty
         ? 'Sem participantes'
-        : group.participantNames!.join(', ');
+        : group.participantNames!.map((name) => _getFirstName(name)).join(', ');
 
     final totalGroupValue = group.totalTransactions ?? 0.0;
 

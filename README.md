@@ -160,7 +160,23 @@ Resultado automático:
    flutter pub get
    ```
 
-3. **Execute o aplicativo**
+3. **Configure o arquivo de ambiente (.env)**
+
+   O aplicativo utiliza variáveis de ambiente para configurar a URL da API. Siga os passos abaixo:
+
+   a. **Copie o arquivo de exemplo**
+   ```bash
+   cp .env.example .env
+   ```
+
+   b. **Edite o arquivo `.env`** e configure a URL da API:
+   ```env
+   DIVIDE_AI_BASE_URL=https://divide-ai-api-i8en.onrender.com
+   ```
+
+   > **📌 Nota:** A URL padrão já está configurada para apontar para a API em produção. Se você estiver rodando a API localmente, altere para `http://localhost:8080` ou a porta que estiver utilizando.
+
+4. **Execute o aplicativo**
    ```bash
    # Para desenvolvimento (modo debug)
    flutter run
@@ -188,6 +204,57 @@ Resultado automático:
    ```
 
 3. **Para iOS**: Instale o Xcode e configure as ferramentas de desenvolvimento
+
+## 🔌 API Backend
+
+O Divide Aí utiliza uma API REST desenvolvida em **Spring Boot (Java)** para gerenciar todos os dados do aplicativo.
+
+### 📚 Repositório da API
+
+- **GitHub:** [https://github.com/gabrielspirlan/divide_ai_api](https://github.com/gabrielspirlan/divide_ai_api)
+
+### 📖 Documentação da API (Swagger)
+
+A API possui documentação completa e interativa gerada com **SpringDoc OpenAPI (Swagger 3.0)**.
+
+- **URL da Documentação:** [https://divide-ai-api-i8en.onrender.com/swagger](https://divide-ai-api-i8en.onrender.com/swagger)
+
+Através da documentação Swagger você pode:
+- ✅ Visualizar todos os endpoints disponíveis
+- ✅ Testar as requisições diretamente no navegador
+- ✅ Ver exemplos de requisições e respostas
+- ✅ Entender os modelos de dados utilizados
+- ✅ Verificar os códigos de status HTTP retornados
+
+### 🌐 Endpoints Principais
+
+A API oferece os seguintes recursos:
+
+- **Autenticação** (`/auth`)
+  - Login e registro de usuários
+  - Gerenciamento de tokens JWT
+
+- **Usuários** (`/users`)
+  - CRUD de usuários
+  - Consulta de perfil
+
+- **Grupos** (`/groups`)
+  - Criação e gerenciamento de grupos
+  - Adição/remoção de participantes
+  - Consulta de divisão de contas
+
+- **Transações** (`/transactions`)
+  - Registro de despesas
+  - Consulta de histórico
+  - Cálculo automático de divisão
+
+### 🔐 Autenticação
+
+A API utiliza **JWT (JSON Web Token)** para autenticação. O aplicativo gerencia automaticamente:
+- Armazenamento seguro do token
+- Inclusão do token em todas as requisições autenticadas
+- Renovação automática quando necessário
+- Logout e limpeza de sessão
 
 ## 🧪 Executando Testes
 

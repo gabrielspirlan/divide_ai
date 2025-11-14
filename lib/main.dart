@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       title: 'Divide Aí',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: const LoginScreen(), // 👉 sempre abre na tela de login
+      home: const LoginScreen(),
     );
   }
 }
