@@ -1,4 +1,4 @@
-import 'package:divide_ai/screens/login_screen.dart';
+import 'package:divide_ai/screens/splash_screen.dart';
 import 'package:divide_ai/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       title: 'Divide Aí',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: const LoginScreen(),
+      home: const SplashScreen(), // Inicia com a SplashScreen que verifica a sessão
     );
   }
 }
